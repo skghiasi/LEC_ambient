@@ -58,6 +58,7 @@
 
 
 #define CH0_N               (0x00u)
+#define CH1_N               (0x01u)
 #define TEMP_CH             (0x01u)
 #define DELAY_1SEC          (1000u)
 
@@ -264,8 +265,12 @@ CY_ISR(ADC_SAR_SEQ_ISR_LOC)
         {
             /* Read conversion result */
             result[CH0_N] = ADC_SAR_SEQ_GetResult16(CH0_N);
-            /* Set PWM compare from channel0 */
-            //PWM_WriteCompare(result[CH0_N]);
+        }    
+        
+        if((range_status & (uint32)(1ul << CH1_N)) != 0u) 
+        {
+            /* Read conversion result */
+            result[CH1_N] = ADC_SAR_SEQ_GetResult16(CH1_N);
         }    
 
         /* Clear range detect status */
@@ -273,12 +278,7 @@ CY_ISR(ADC_SAR_SEQ_ISR_LOC)
         dataReady |= ADC_SAR_SEQ_EOS_MASK;
     }    
 
-    /* Check for Injection End of Conversion */
-    //if((intr_status & ADC_SAR_SEQ_INJ_EOC_MASK) != 0u)
-    //{
-     //   result[TEMP_CH] = ADC_SAR_SEQ_GetResult16(TEMP_CH);
-     //   dataReady |= ADC_SAR_SEQ_INJ_EOC_MASK;
-    //}    
+   
 
     /* Clear handled interrupt */
     ADC_SAR_SEQ_SAR_INTR_REG = intr_status;
@@ -301,7 +301,8 @@ int main()
 {
     CyGlobalIntEnable;
     
-    float32 res = 0 ; 
+    float32 angle_y = 0 ; 
+    float32 angle_x = 0 ; 
     char  uartLine[250];
     
     /* Start the I2C Master */
@@ -331,15 +332,17 @@ int main()
         {
             /* Get voltage, measured by ADC */
             dataReady &= ~ADC_SAR_SEQ_EOS_MASK;
-            //res = ADC_SAR_SEQ_CountsTo_mVolts(CH0_N, result[CH0_N]);
-            res = ADC_SAR_SEQ_CountsTo_Volts(CH0_N, result[CH0_N]); 
+           
+            angle_y = ADC_SAR_SEQ_CountsTo_Volts(CH0_N, result[CH0_N]);
+            angle_x = ADC_SAR_SEQ_CountsTo_Volts(CH1_N, result[CH1_N]);
+            
               
      
             
             /* Print voltage value to UART */
             sprintf(
-                uartLine, "voltage: %f V\n",
-                (float32)res
+                uartLine, "voltage_y: %f V, voltage_x %f\n",
+                (float32)angle_y,(float32)angle_x
                 );
             
             UART_UartPutString(uartLine);

@@ -277,7 +277,8 @@ static void ClockSetup(void)
 static void AnalogSetDefault(void);
 static void AnalogSetDefault(void)
 {
-	CY_SET_XTND_REG32((void CYFAR *)CYREG_SAR_MUX_SWITCH0, 0x00080000u);
+	CY_SET_XTND_REG32((void CYFAR *)CYREG_SAR_MUX_SWITCH0, 0x000C0000u);
+	CY_SET_XTND_REG32((void CYFAR *)CYREG_SAR_MUX_SWITCH_HW_CTRL, 0x000C0000u);
 	SetAnalogRoutingPumps(1);
 }
 
@@ -341,7 +342,7 @@ void cyfitter_cfg(void)
 		static const uint32 CYCODE cy_cfg_addr_table[] = {
 			0x400F3204u, /* Base address: 0x400F3200 Count: 4 */
 			0x400F3302u, /* Base address: 0x400F3300 Count: 2 */
-			0x400F4002u, /* Base address: 0x400F4000 Count: 2 */
+			0x400F4004u, /* Base address: 0x400F4000 Count: 4 */
 			0x400F4103u, /* Base address: 0x400F4100 Count: 3 */
 		};
 
@@ -352,10 +353,12 @@ void cyfitter_cfg(void)
 			{0x5Fu, 0x01u},
 			{0x1Fu, 0x80u},
 			{0x87u, 0x80u},
+			{0x57u, 0x20u},
 			{0x63u, 0x02u},
+			{0xD4u, 0x40u},
 			{0xD6u, 0x40u},
-			{0x87u, 0x01u},
-			{0xA7u, 0x01u},
+			{0x87u, 0x21u},
+			{0xA7u, 0x21u},
 			{0xE6u, 0x10u},
 		};
 
@@ -384,13 +387,13 @@ void cyfitter_cfg(void)
 		cfg_write_bytes32(cy_cfg_addr_table, cy_cfg_data_table);
 
 		/* HSIOM Starting address: CYDEV_HSIOM_BASE */
-		CY_SET_REG32((void *)(CYDEV_HSIOM_BASE), 0x00070000u);
+		CY_SET_REG32((void *)(CYDEV_HSIOM_BASE), 0x00067000u);
 		CY_SET_REG32((void *)(CYREG_HSIOM_PORT_SEL3), 0x0000EEEEu);
 		CY_SET_REG32((void *)(CYREG_HSIOM_PORT_SEL4), 0x00000099u);
 
 		/* UDB_PA_0 Starting address: CYDEV_UDB_PA0_BASE */
 		CY_SET_REG32((void *)(CYDEV_UDB_PA0_BASE), 0x00990000u);
-		CY_SET_REG32((void *)(CYREG_UDB_PA0_CFG8), 0x54000000u);
+		CY_SET_REG32((void *)(CYREG_UDB_PA0_CFG8), 0x54400000u);
 
 		/* UDB_PA_3 Starting address: CYDEV_UDB_PA3_BASE */
 		CY_SET_REG32((void *)(CYDEV_UDB_PA3_BASE), 0x00990000u);
@@ -402,8 +405,8 @@ void cyfitter_cfg(void)
 
 	/* Perform second pass device configuration. These items must be configured in specific order after the regular configuration is done. */
 	/* IOPINS0_0 Starting address: CYDEV_PRT0_BASE */
-	CY_SET_REG32((void *)(CYDEV_PRT0_BASE), 0x00000010u);
-	CY_SET_REG32((void *)(CYREG_PRT0_PC2), 0x00000010u);
+	CY_SET_REG32((void *)(CYDEV_PRT0_BASE), 0x00000018u);
+	CY_SET_REG32((void *)(CYREG_PRT0_PC2), 0x00000018u);
 
 	/* IOPINS0_3 Starting address: CYDEV_PRT3_BASE */
 	CY_SET_REG32((void *)(CYDEV_PRT3_BASE), 0x00000003u);

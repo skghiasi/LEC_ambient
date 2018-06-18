@@ -24,6 +24,8 @@
 #include "I2CM_I2C_PVT.h"
 #include "I2CM_PVT.h"
 #include "I2CM_BOOT.h"
+#include "pin_incl_x.h"
+#include "pin_incl_x_aliases.h"
 #include "Clk_Timer.h"
 #include "Timer.h"
 #include "UART.h"

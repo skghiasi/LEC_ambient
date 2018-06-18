@@ -157,6 +157,10 @@
           <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\ADC_SAR_SEQ_IRQ.h</File>
           <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\ADC_SAR_SEQ_intClock.c</File>
           <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\ADC_SAR_SEQ_intClock.h</File>
+          <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\pin_incl_x.c</File>
+          <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\pin_incl_x.h</File>
+          <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\pin_incl_x_aliases.h</File>
+          <File BuildType="BUILD" Toolchain="">Generated_Source\PSoC4\pin_incl_x_PM.c</File>
         </Files>
       </Folder>
       <Folder BuildType="EXCLUDE" Path=".\codegentemp">

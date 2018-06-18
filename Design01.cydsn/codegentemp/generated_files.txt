@@ -26,6 +26,10 @@
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_I2C_PVT.h" value="HEADER;;;;;I2CM" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_PVT.h" value="HEADER;;;;;I2CM" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_BOOT.h" value="HEADER;;;;;I2CM" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\pin_incl_x.c" value="SOURCE_C;CortexM0;;;;pin_incl_x" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\pin_incl_x.h" value="HEADER;;;;;pin_incl_x" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\pin_incl_x_aliases.h" value="HEADER;;;;;pin_incl_x" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\pin_incl_x_PM.c" value="SOURCE_C;CortexM0;;;;pin_incl_x" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.c" value="SOURCE_C;CortexM0;;;;Clk_Timer" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.h" value="HEADER;;;;;Clk_Timer" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer.c" value="SOURCE_C;CortexM0;;;;Timer" />

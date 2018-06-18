@@ -16,6 +16,7 @@
       <Data key="43ec2fa1-bf22-4b71-9477-b6ca7b97f0b0/78e33e5d-45ea-4b75-88d5-73274e8a7ce4" value="UART_rx" />
       <Data key="97bd13f1-c879-4c52-a35f-fdd57642446e/5382e105-1382-4a2e-b9f4-3bb2feba71e0" value="I2CM_sda" />
       <Data key="97bd13f1-c879-4c52-a35f-fdd57642446e/22863ebe-a37b-476f-b252-6e49a8c00b12" value="I2CM_scl" />
+      <Data key="481eafe5-6b96-4dac-9ead-9eb384e00f8a" value="pin_incl_x" />
       <Data key="58320c45-4f42-4c98-ab2a-d3b27fe001ec" value="InputPin" />
     </Group>
   </Group>
@@ -1239,6 +1240,11 @@
     <Group key="97bd13f1-c879-4c52-a35f-fdd57642446e/22863ebe-a37b-476f-b252-6e49a8c00b12">
       <Group key="0">
         <Data key="Port Format" value="3,0" />
+      </Group>
+    </Group>
+    <Group key="481eafe5-6b96-4dac-9ead-9eb384e00f8a">
+      <Group key="0">
+        <Data key="Port Format" value="0,3" />
       </Group>
     </Group>
     <Group key="58320c45-4f42-4c98-ab2a-d3b27fe001ec">

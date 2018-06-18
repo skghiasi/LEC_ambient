@@ -1,5 +1,5 @@
 -- Project:   Design01
--- Generated: 06/18/2018 12:31:32
+-- Generated: 06/18/2018 14:52:20
 -- PSoC Creator  4.2
 
 ENTITY Design01 IS
@@ -28,8 +28,8 @@ ARCHITECTURE __DEFAULT__ OF Design01 IS
     SIGNAL Net_346 : bit;
     SIGNAL Net_348 : bit;
     SIGNAL Net_349 : bit;
-    SIGNAL Net_367 : bit;
-    SIGNAL Net_368 : bit;
+    SIGNAL Net_417 : bit;
+    SIGNAL Net_418 : bit;
     SIGNAL Net_45_ff8 : bit;
     ATTRIBUTE global_signal OF Net_45_ff8 : SIGNAL IS true;
     SIGNAL Net_5 : bit;
@@ -103,6 +103,7 @@ ARCHITECTURE __DEFAULT__ OF Design01 IS
     ATTRIBUTE GROUND OF __ZERO__ : SIGNAL IS true;
     SIGNAL one : bit;
     ATTRIBUTE POWER OF one : SIGNAL IS true;
+    SIGNAL pin_incl_x(0)__PA : bit;
     SIGNAL zero : bit;
     ATTRIBUTE GROUND OF zero : SIGNAL IS true;
     ATTRIBUTE lib_model OF __ONE__ : LABEL IS "macrocell1";
@@ -113,11 +114,13 @@ ARCHITECTURE __DEFAULT__ OF Design01 IS
     ATTRIBUTE Location OF \I2CM:sda(0)\ : LABEL IS "P3[1]";
     ATTRIBUTE lib_model OF \I2CM:scl(0)\ : LABEL IS "iocell2";
     ATTRIBUTE Location OF \I2CM:scl(0)\ : LABEL IS "P3[0]";
-    ATTRIBUTE lib_model OF \UART:tx(0)\ : LABEL IS "iocell3";
+    ATTRIBUTE lib_model OF pin_incl_x(0) : LABEL IS "iocell3";
+    ATTRIBUTE Location OF pin_incl_x(0) : LABEL IS "P0[3]";
+    ATTRIBUTE lib_model OF \UART:tx(0)\ : LABEL IS "iocell4";
     ATTRIBUTE Location OF \UART:tx(0)\ : LABEL IS "P4[1]";
-    ATTRIBUTE lib_model OF \UART:rx(0)\ : LABEL IS "iocell4";
+    ATTRIBUTE lib_model OF \UART:rx(0)\ : LABEL IS "iocell5";
     ATTRIBUTE Location OF \UART:rx(0)\ : LABEL IS "P4[0]";
-    ATTRIBUTE lib_model OF Pin_Vin(0) : LABEL IS "iocell5";
+    ATTRIBUTE lib_model OF Pin_Vin(0) : LABEL IS "iocell6";
     ATTRIBUTE Location OF Pin_Vin(0) : LABEL IS "P0[4]";
     ATTRIBUTE Location OF \I2CM:SCB_IRQ\ : LABEL IS "[IntrContainer=(0)][IntrId=(11)]";
     ATTRIBUTE Location OF \I2CM:SCB\ : LABEL IS "F(SCB,1)";
@@ -420,6 +423,8 @@ ARCHITECTURE __DEFAULT__ OF Design01 IS
             data_oe_2 : IN std_ulogic;
             data_oe_3 : IN std_ulogic);
     END COMPONENT;
+    COMPONENT p4sarmuxcell
+    END COMPONENT;
 BEGIN
 
     __ONE__:macrocell
@@ -625,6 +630,96 @@ BEGIN
             pin_input => open,
             pad_in => \I2CM:scl(0)_PAD\,
             in_clock => open,
+            in_clock_en => '1',
+            in_reset => '0',
+            out_clock => open,
+            out_clock_en => '1',
+            out_reset => '0');
+
+    pin_incl_x:logicalport
+        GENERIC MAP(
+            drive_mode => "000",
+            ibuf_enabled => "0",
+            id => "481eafe5-6b96-4dac-9ead-9eb384e00f8a",
+            init_dr_st => "1",
+            input_buffer_sel => "00",
+            input_clk_en => 0,
+            input_sync => "1",
+            input_sync_mode => "0",
+            intr_mode => "00",
+            invert_in_clock => 0,
+            invert_in_clock_en => 0,
+            invert_in_reset => 0,
+            invert_out_clock => 0,
+            invert_out_clock_en => 0,
+            invert_out_reset => 0,
+            io_voltage => "",
+            layout_mode => "CONTIGUOUS",
+            oe_conn => "0",
+            oe_reset => 0,
+            oe_sync => "0",
+            output_clk_en => 0,
+            output_clock_mode => "0",
+            output_conn => "0",
+            output_mode => "0",
+            output_reset => 0,
+            output_sync => "0",
+            ovt_hyst_trim => "0",
+            ovt_needed => "0",
+            ovt_slew_control => "00",
+            pa_in_clock => -1,
+            pa_in_clock_en => -1,
+            pa_in_reset => -1,
+            pa_out_clock => -1,
+            pa_out_clock_en => -1,
+            pa_out_reset => -1,
+            pin_aliases => "",
+            pin_mode => "A",
+            por_state => 4,
+            port_alias_group => "",
+            port_alias_required => 0,
+            sio_group_cnt => 0,
+            sio_hifreq => "00000000",
+            sio_hyst => "1",
+            sio_ibuf => "00000000",
+            sio_info => "00",
+            sio_obuf => "00000000",
+            sio_refsel => "00000000",
+            sio_vohsel => "00000000",
+            sio_vtrip => "00000000",
+            slew_rate => "0",
+            spanning => 0,
+            sw_only => 0,
+            use_annotation => "0",
+            vtrip => "10",
+            width => 1,
+            in_clk_inv => 0,
+            in_clken_inv => 0,
+            in_clken_mode => 1,
+            in_rst_inv => 0,
+            out_clk_inv => 0,
+            out_clken_inv => 0,
+            out_clken_mode => 1,
+            out_rst_inv => 0)
+        PORT MAP(
+            in_clock_en => open,
+            in_reset => open,
+            out_clock_en => open,
+            out_reset => open);
+
+    pin_incl_x(0):iocell
+        GENERIC MAP(
+            in_sync_mode => 0,
+            out_sync_mode => 0,
+            oe_sync_mode => 0,
+            logicalport => "pin_incl_x",
+            logicalport_pin_id => 0,
+            io_capabilities => "0000000000000000000000000000000000000000000000000000000000000010")
+        PORT MAP(
+            pa_out => pin_incl_x(0)__PA,
+            oe => open,
+            in_clock => open,
+            pin_input => __ONE__,
             in_clock_en => '1',
             in_reset => '0',
             out_clock => open,
@@ -1019,7 +1114,7 @@ BEGIN
             cy_registers => "")
         PORT MAP(
             clock => \ADC_SAR_SEQ:Net_1845_ff7\,
-            sample_done => Net_367,
+            sample_done => Net_417,
             chan_id_valid => \ADC_SAR_SEQ:Net_3108\,
             chan_id_3 => \ADC_SAR_SEQ:Net_3109_3\,
             chan_id_2 => \ADC_SAR_SEQ:Net_3109_2\,
@@ -1038,7 +1133,7 @@ BEGIN
             data_2 => \ADC_SAR_SEQ:Net_3111_2\,
             data_1 => \ADC_SAR_SEQ:Net_3111_1\,
             data_0 => \ADC_SAR_SEQ:Net_3111_0\,
-            eos_intr => Net_368,
+            eos_intr => Net_418,
             irq => \ADC_SAR_SEQ:Net_3112\,
             sw_negvref => open,
             cfg_st_sel_1 => open,
@@ -1048,5 +1143,12 @@ BEGIN
             cfg_differential => open,
             tr_sar_in => open,
             data_hilo_sel => open);
+
+    \ADC_SAR_SEQ:cy_psoc4_sarmux_8\:p4sarmuxcell
+        GENERIC MAP(
+            cmn_neg_width => 1,
+            cy_registers => "",
+            input_mode => "00",
+            muxin_width => 2);
 
 END __DEFAULT__;
