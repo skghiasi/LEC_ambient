@@ -1,0 +1,2 @@
+Remove Pin=P?-3 From Net=Psoc_rx0
+Remove Pin=P?-4 From Net=Psoc_tx0

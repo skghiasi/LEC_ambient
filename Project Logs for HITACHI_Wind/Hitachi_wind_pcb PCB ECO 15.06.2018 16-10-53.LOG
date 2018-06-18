@@ -1,0 +1,94 @@
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Change component parameters. Clean all parameters for all variants
+Added Pin To Net: NetName=SW_REG Pin=C5-1
+Added Pin To Net: NetName=BOOT_REG Pin=C5-2
+Added Pin To Net: NetName=FB_REG Pin=C6-1
+Added Pin To Net: NetName=v4 Pin=C6-2
+Added Pin To Net: NetName=AGND_REG Pin=C12-1
+Added Pin To Net: NetName=v4 Pin=C12-2
+Added Pin To Net: NetName=AGND_REG Pin=C13-1
+Added Pin To Net: NetName=VCC_REG Pin=C13-2
+Added Pin To Net: NetName=AGND_REG Pin=C14-1
+Added Pin To Net: NetName=v24 Pin=C14-2
+Added Pin To Net: NetName=br_ye Pin=J1-2
+Added Pin To Net: NetName=br_gr Pin=J1-3
+Added Pin To Net: NetName=black Pin=J1-5
+Added Pin To Net: NetName=SW_REG Pin=L1-1
+Added Pin To Net: NetName=v4 Pin=L1-2
+Added Pin To Net: NetName=Psoc_rx0 Pin=P2-2
+Added Pin To Net: NetName=Psoc_tx0 Pin=P2-3
+Added Pin To Net: NetName=bnc Pin=P6-1
+Added Pin To Net: NetName=black Pin=P6-2
+Added Pin To Net: NetName=black Pin=P6-2
+Added Pin To Net: NetName=black Pin=P6-2
+Added Pin To Net: NetName=black Pin=P6-2
+Added Pin To Net: NetName=Psoc_rx0 Pin=P7-1
+Added Pin To Net: NetName=Psoc_tx0 Pin=P7-2
+Added Pin To Net: NetName=AGND_REG Pin=P7-3
+Added Pin To Net: NetName=v24 Pin=P8-1
+Added Pin To Net: NetName=AGND_REG Pin=P8-2
+Added Pin To Net: NetName=v24 Pin=P9-1
+Added Pin To Net: NetName=black Pin=P9-2
+Added Pin To Net: NetName=br_ye Pin=P9-3
+Added Pin To Net: NetName=br_gr Pin=P9-4
+Added Pin To Net: NetName=pink Pin=P9-5
+Added Pin To Net: NetName=AGND_REG Pin=P9-6
+Added Pin To Net: NetName=FB_REG Pin=R5-1
+Added Pin To Net: NetName=v4 Pin=R5-2
+Added Pin To Net: NetName=AGND_REG Pin=R6-1
+Added Pin To Net: NetName=FB_REG Pin=R6-2
+Added Pin To Net: NetName=bnc Pin=R7-1
+Added Pin To Net: NetName=pink Pin=R7-2
+Added Pin To Net: NetName=black Pin=R8-1
+Added Pin To Net: NetName=bnc Pin=R8-2
+Added Pin To Net: NetName=SW_REG Pin=U2-1
+Added Pin To Net: NetName=BOOT_REG Pin=U2-2
+Added Pin To Net: NetName=VCC_REG Pin=U2-3
+Added Pin To Net: NetName=FB_REG Pin=U2-4
+Added Pin To Net: NetName=v24 Pin=U2-5
+Added Pin To Net: NetName=AGND_REG Pin=U2-6
+Added Pin To Net: NetName=v24 Pin=U2-7
+Added Pin To Net: NetName=AGND_REG Pin=U2-8
+Added Pin To Net: NetName=AGND_REG Pin=U4-1
+Added Pin To Net: NetName=AGND_REG Pin=U4-2
+Added Pin To Net: NetName=AGND_REG Pin=U4-3
+Added Pin To Net: NetName=v24 Pin=U4-4
+Added Pin To Net: NetName=v24 Pin=U4-5
+Added Pin To Net: NetName=v24 Pin=U4-6
+Added Room: Name=Hitachi_wind_main

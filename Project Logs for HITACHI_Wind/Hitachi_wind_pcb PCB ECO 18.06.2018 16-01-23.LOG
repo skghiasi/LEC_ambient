@@ -1,0 +1,5 @@
+Added Pin To Net: NetName=inclin_x Pin=U1-27
+Added Net: Name=inclin_x
+Added Pin To Net: NetName=inclin_y Pin=U1-28
+Added Net: Name=inclin_y
+Added Room: Name=Hitachi_wind_main
