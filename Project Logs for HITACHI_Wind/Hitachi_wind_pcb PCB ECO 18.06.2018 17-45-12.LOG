@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=inclin_x Pin=P11-1
+Removed Pin From Net: NetName=inclin_y Pin=P11-2
+Removed Pin From Net: NetName=AGND_REG Pin=P11-3
+Added Pin To Net: NetName=inclin_y Pin=P11-1
+Added Pin To Net: NetName=AGND_REG Pin=P11-2
+Added Pin To Net: NetName=inclin_x Pin=P11-3
+Added Room: Name=Hitachi_wind_main
