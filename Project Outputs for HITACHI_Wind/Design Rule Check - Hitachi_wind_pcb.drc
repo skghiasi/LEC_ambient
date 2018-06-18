@@ -1,7 +1,7 @@
 Protel Design System Design Rule Check
 PCB File : F:\Altium\keyarash\proj_hitachi_wind\Hitachi_wind_pcb.PcbDoc
 Date     : 18.06.2018
-Time     : 16:19:07
+Time     : 16:32:03
 
 Processing Rule : Clearance Constraint (Gap=0.254mm) (InNamedPolygon('TOP-GND')),(All)
 Rule Violations :0
