@@ -1,7 +1,6 @@
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|3ca96233-14c8-4e59-91eb-722a7f8985b7
-C:\Users\Keyarash\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|24778ebd-487d-4d78-b482-0d84cf65a12d
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|4707d3d8-17e7-41e9-bc84-2b6b830dfd7d
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|e75b3c58-cf74-47fb-b07c-061eb3f2aa79
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|c683817c-4ec6-4935-a94b-913c39c25f56
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|3d82a80b-03a6-419a-b4a4-097effdac46e
-F:\Psoc project\Hadi\Workspace01\Design01.cydsn\Design01.cyprj|67a88041-96df-442b-b269-0853124f4c42
+F:\Psoc project\Hadi\Workspace01\Design01.cydsn\Design01.cyprj|f4f9a1b9-890f-4a00-8ab5-5fd5f13dd46a
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|01fe6dd0-5266-4e71-998e-0cf9cd8af96a
+C:\Users\Keyarash\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|45a2fb3e-ae91-48af-96ad-e8030e6d59e9
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|4d007d00-6236-436e-93a4-ed07039b8241
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|e947dda5-bba2-4064-b8d1-d067c78c2a5f
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|d418d94b-8136-43de-a054-d8c313c78108

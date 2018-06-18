@@ -2,18 +2,11 @@ net ClockBlock_HFClk
 	term   ":m0s8clockblockcell.hfclk"
 	switch ":m0s8clockblockcell.hfclk==>:interrupt_11.clock"
 	term   ":interrupt_11.clock"
-	switch ":m0s8clockblockcell.hfclk==>:interrupt_1.clock"
-	term   ":interrupt_1.clock"
 	switch ":m0s8clockblockcell.hfclk==>:interrupt_16.clock"
 	term   ":interrupt_16.clock"
+	switch ":m0s8clockblockcell.hfclk==>:interrupt_14.clock"
+	term   ":interrupt_14.clock"
 end ClockBlock_HFClk
-net Net_180
-	term   ":logicalport_1.interrupt"
-	switch ":logicalport_1.interrupt==>Stub-:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v17+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v19"
-	switch "Stub-:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v17+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v19==>:interrupt_idmux_1.in_0"
-	switch ":interrupt_idmux_1.interrupt_idmux_1__out==>:interrupt_1.interrupt"
-	term   ":interrupt_1.interrupt"
-end Net_180
 net Net_20
 	term   ":ioport3:pin0.fb"
 	switch ":ioport3:pin0.fb==>:ioport3:hsiom_in0.hsiom0_in"
@@ -40,6 +33,12 @@ net Net_3
 	switch ":interrupt_idmux_11.interrupt_idmux_11__out==>:interrupt_11.interrupt"
 	term   ":interrupt_11.interrupt"
 end Net_3
+net \ADC_SAR_SEQ:Net_3112\
+	term   ":p4sarcell.irq"
+	switch ":p4sarcell.irq==>:interrupt_idmux_14.in_0"
+	switch ":interrupt_idmux_14.interrupt_idmux_14__out==>:interrupt_14.interrupt"
+	term   ":interrupt_14.interrupt"
+end \ADC_SAR_SEQ:Net_3112\
 net \UART:rx_wire\
 	term   ":ioport4:pin0.fb"
 	switch ":ioport4:pin0.fb==>:ioport4:hsiom_in0.hsiom0_in"
@@ -53,3 +52,20 @@ net \UART:tx_wire\
 	switch ":ioport4:hsiom_out1.hsiom1_out==>:ioport4:pin1.pin_input"
 	term   ":ioport4:pin1.pin_input"
 end \UART:tx_wire\
+net __ONE__
+	term   ":udb@[UDB=(1,0)]:pld0:mc0.q"
+	switch ":udb@[UDB=(1,0)]:pld0:mc0.q==>:udb@[UDB=(1,0)]:pld0:output_permute3.q_0"
+	switch ":udb@[UDB=(1,0)]:pld0:output_permute3.output_3==>Stub-:udbswitch@[UDB=(0,0)][side=top]:v31"
+	switch "OStub-:udbswitch@[UDB=(0,0)][side=top]:v31"
+	switch ":udbswitch@[UDB=(0,0)][side=top]:31,95"
+	switch ":hvswitch@[UDB=(1,0)][side=left]:7,95_f"
+	switch ":hvswitch@[UDB=(2,0)][side=left]:vseg_7_top_f"
+	switch ":hvswitch@[UDB=(2,0)][side=left]:7,74_b"
+	switch ":hvswitch@[UDB=(2,0)][side=left]:hseg_74_f"
+	switch ":dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:96,74_f"
+	switch "IStub-:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v92+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v94+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v96"
+	switch "Stub-:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v92+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v94+:dsiswitch_bottom@[DSI=(1,1)][side=bottom]:dsihc_bottom:v96==>:ioport0:inputs2_mux.in_0"
+	switch ":ioport0:inputs2_mux.pin4__pin_input==>:ioport0:hsiom_out4.dsi"
+	switch ":ioport0:hsiom_out4.hsiom4_out==>:ioport0:pin4.pin_input"
+	term   ":ioport0:pin4.pin_input"
+end __ONE__

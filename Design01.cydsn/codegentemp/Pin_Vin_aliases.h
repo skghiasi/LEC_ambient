@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: InputPin.h  
+* File Name: Pin_Vin.h  
 * Version 2.20
 *
 * Description:
@@ -15,8 +15,8 @@
 * the software package with which this file was provided.
 *******************************************************************************/
 
-#if !defined(CY_PINS_InputPin_ALIASES_H) /* Pins InputPin_ALIASES_H */
-#define CY_PINS_InputPin_ALIASES_H
+#if !defined(CY_PINS_Pin_Vin_ALIASES_H) /* Pins Pin_Vin_ALIASES_H */
+#define CY_PINS_Pin_Vin_ALIASES_H
 
 #include "cytypes.h"
 #include "cyfitter.h"
@@ -26,17 +26,17 @@
 /***************************************
 *              Constants        
 ***************************************/
-#define InputPin_0			(InputPin__0__PC)
-#define InputPin_0_PS		(InputPin__0__PS)
-#define InputPin_0_PC		(InputPin__0__PC)
-#define InputPin_0_DR		(InputPin__0__DR)
-#define InputPin_0_SHIFT	(InputPin__0__SHIFT)
-#define InputPin_0_INTR	((uint16)((uint16)0x0003u << (InputPin__0__SHIFT*2u)))
+#define Pin_Vin_0			(Pin_Vin__0__PC)
+#define Pin_Vin_0_PS		(Pin_Vin__0__PS)
+#define Pin_Vin_0_PC		(Pin_Vin__0__PC)
+#define Pin_Vin_0_DR		(Pin_Vin__0__DR)
+#define Pin_Vin_0_SHIFT	(Pin_Vin__0__SHIFT)
+#define Pin_Vin_0_INTR	((uint16)((uint16)0x0003u << (Pin_Vin__0__SHIFT*2u)))
 
-#define InputPin_INTR_ALL	 ((uint16)(InputPin_0_INTR))
+#define Pin_Vin_INTR_ALL	 ((uint16)(Pin_Vin_0_INTR))
 
 
-#endif /* End Pins InputPin_ALIASES_H */
+#endif /* End Pins Pin_Vin_ALIASES_H */
 
 
 /* [] END OF FILE */

@@ -52,7 +52,23 @@
 #include "stdio.h"
 #include <project.h>
 
+#include <ADC_SAR_SEQ.h>
+
 #define TIMER_CLK_FREQ 1000
+
+
+#define CH0_N               (0x00u)
+#define TEMP_CH             (0x01u)
+#define DELAY_1SEC          (1000u)
+
+/* Get actual Vref. value from ADC SAR sequencer */
+//#define ADC_VREF_VALUE_V    ((float)ADC_SAR_SEQ_DEFAULT_VREF_MV_VALUE/1000.0)
+
+volatile uint32 dataReady = 0u;
+volatile int16 result[ADC_SAR_SEQ_TOTAL_CHANNELS_NUM];
+volatile uint32 timer_delay = 0u;
+
+
 /*******************************************************************************
 * Function Name: WriteCommandPacket
 ********************************************************************************
@@ -99,6 +115,7 @@ uint32 WriteCommandPacket(uint8 cmd)
                                     buffer, PACKET_SIZE,
                                     I2CM_I2C_MODE_COMPLETE_XFER))
     {
+         
         /*If I2C write started without errors, 
         / wait until I2C Master completes write transfer 
         */
@@ -120,7 +137,6 @@ uint32 WriteCommandPacket(uint8 cmd)
 
     return (status);
 }
-
 
 /*******************************************************************************
 * Function Name: ReadStatusPacket
@@ -197,13 +213,13 @@ void runTempHumidModule(){
 /************************************************************
 *function Block: Timer Counter related
 *************************************************************/
-void printRPM(int input){
-    char a [50]; 
-    sprintf(a , "rpm: %d\n", input); 
-    UART_UartPutString(a); 
-}
+//void printRPM(int input){
+    //char a [50]; 
+    //sprintf(a , "rpm: %d\n", input); 
+    //UART_UartPutString(a); 
+//}
 
-CY_ISR(Ctr_Function)
+/*CY_ISR(Ctr_Function)
 {
     uint32 counter ;
     float data = 0 ; 
@@ -220,7 +236,7 @@ CY_ISR(Ctr_Function)
     data = data * 60 / 3; 
     if (data < MAX_TURBINE_RPM && data >= 0) 
         printRPM(data); 
-}
+}*/
 
 /** period function to reduce the communication rate of sensors */ 
 CY_ISR(Period_function)
@@ -231,6 +247,42 @@ CY_ISR(Period_function)
 }
 
 
+CY_ISR(ADC_SAR_SEQ_ISR_LOC)
+{
+    uint32 intr_status;
+    uint32 range_status;
+
+    /* Read interrupt status registers */
+    intr_status = ADC_SAR_SEQ_SAR_INTR_MASKED_REG;
+    /* Check for End of Scan interrupt */
+    if((intr_status & ADC_SAR_SEQ_EOS_MASK) != 0u)
+    {
+        /* Read range detect status */
+        range_status = ADC_SAR_SEQ_SAR_RANGE_INTR_MASKED_REG;
+        /* Verify that the conversion result met the condition Low_Limit <= Result < High_Limit  */
+        if((range_status & (uint32)(1ul << CH0_N)) != 0u) 
+        {
+            /* Read conversion result */
+            result[CH0_N] = ADC_SAR_SEQ_GetResult16(CH0_N);
+            /* Set PWM compare from channel0 */
+            //PWM_WriteCompare(result[CH0_N]);
+        }    
+
+        /* Clear range detect status */
+        ADC_SAR_SEQ_SAR_RANGE_INTR_REG = range_status;
+        dataReady |= ADC_SAR_SEQ_EOS_MASK;
+    }    
+
+    /* Check for Injection End of Conversion */
+    //if((intr_status & ADC_SAR_SEQ_INJ_EOC_MASK) != 0u)
+    //{
+     //   result[TEMP_CH] = ADC_SAR_SEQ_GetResult16(TEMP_CH);
+     //   dataReady |= ADC_SAR_SEQ_INJ_EOC_MASK;
+    //}    
+
+    /* Clear handled interrupt */
+    ADC_SAR_SEQ_SAR_INTR_REG = intr_status;
+}
 
 
 /*******************************************************************************
@@ -249,20 +301,50 @@ int main()
 {
     CyGlobalIntEnable;
     
+    float32 res = 0 ; 
+    char  uartLine[250];
+    
     /* Start the I2C Master */
     I2CM_Start();
     UART_Start(); 
     Timer_Start();
-    TimerHumidityTemp_Start(); 
+    //TimerHumidityTemp_Start(); 
     
-    InputPinIsr_StartEx(Ctr_Function);
+     /* Init and start sequencing SAR ADC */
+    ADC_SAR_SEQ_Start();
+    ADC_SAR_SEQ_StartConvert();
+    /* Enable interrupt and set interrupt handler to local routine */
+    ADC_SAR_SEQ_IRQ_StartEx(ADC_SAR_SEQ_ISR_LOC);
+    
+    //InputPinIsr_StartEx(Ctr_Function);
     //HumidityTempIsr_StartEx(Period_function); 
     
     for(;;)
     {      
         runTempHumidModule(); 
         
-        CyDelay(CMD_TO_CMD_DELAY); 
+        CyDelay(CMD_TO_CMD_DELAY);       
+         
+        
+        /* When conversion of sequencing channels has completed */
+        if((dataReady & ADC_SAR_SEQ_EOS_MASK) != 0u)
+        {
+            /* Get voltage, measured by ADC */
+            dataReady &= ~ADC_SAR_SEQ_EOS_MASK;
+            //res = ADC_SAR_SEQ_CountsTo_mVolts(CH0_N, result[CH0_N]);
+            res = ADC_SAR_SEQ_CountsTo_Volts(CH0_N, result[CH0_N]); 
+              
+     
+            
+            /* Print voltage value to UART */
+            sprintf(
+                uartLine, "voltage: %f V\n",
+                (float32)res
+                );
+            
+            UART_UartPutString(uartLine);
+
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 1
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 1
 
 
    1              		.syntax unified
@@ -19,14 +19,14 @@ ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 1
   16              		.text
   17              	.Ltext0:
   18              		.cfi_sections	.debug_frame
-  19              		.section	.text.UART_printFormat,"ax",%progbits
+  19              		.section	.text.ADC_SAR_SEQ_ISR_LOC,"ax",%progbits
   20              		.align	2
-  21              		.global	UART_printFormat
+  21              		.global	ADC_SAR_SEQ_ISR_LOC
   22              		.code	16
   23              		.thumb_func
-  24              		.type	UART_printFormat, %function
-  25              	UART_printFormat:
-  26              	.LFB33:
+  24              		.type	ADC_SAR_SEQ_ISR_LOC, %function
+  25              	ADC_SAR_SEQ_ISR_LOC:
+  26              	.LFB40:
   27              		.file 1 "main.c"
    1:main.c        **** /******************************************************************************
    2:main.c        **** * File Name: main.c
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 1
   28:main.c        **** * which you obtained this Software ("EULA").
   29:main.c        **** *
   30:main.c        **** * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 2
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 2
 
 
   31:main.c        **** * non-transferable license to copy, modify, and compile the Software source
@@ -85,2443 +85,2603 @@ ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 1
   52:main.c        **** #include "stdio.h"
   53:main.c        **** #include <project.h>
   54:main.c        **** 
-  55:main.c        **** #define TIMER_CLK_FREQ 1000
-  56:main.c        **** /*******************************************************************************
-  57:main.c        **** * Function Name: WriteCommandPacket
-  58:main.c        **** ********************************************************************************
-  59:main.c        **** * 
-  60:main.c        **** * Summary:
-  61:main.c        **** *  Master initiates the transfer to write command packet into the slave.
-  62:main.c        **** *  The status of the transfer is returned.
-  63:main.c        **** *
-  64:main.c        **** * Parameters:
-  65:main.c        **** *  cmd: command to execute. Supported commands:
-  66:main.c        **** *   - CMD_SET_RED:   set red color of the LED.
-  67:main.c        **** *   - CMD_SET_GREEN: set green color of the LED.
-  68:main.c        **** *   - CMD_SET_BLUE:  set blue color of the LED.
-  69:main.c        **** *   - CMD_SET_OFF:   turn off the LED.
-  70:main.c        **** *
-  71:main.c        **** * Return:
-  72:main.c        **** *  Status of the data transfer. There are two statuses
-  73:main.c        **** *  - TRANSFER_CMPLT: transfer completed successfully.
-  74:main.c        **** *  - TRANSFER_ERROR: the error occurred while transfer.
-  75:main.c        **** *
-  76:main.c        **** *******************************************************************************/
-  77:main.c        **** /* global definitions */ 
-  78:main.c        **** 
-  79:main.c        **** 
-  80:main.c        **** 
-  81:main.c        **** 
-  82:main.c        **** void UART_printFormat(int temp , int humid){
-  28              		.loc 1 82 0
-  29              		.cfi_startproc
-  30              		@ args = 0, pretend = 0, frame = 56
-  31              		@ frame_needed = 0, uses_anonymous_args = 0
-  32              	.LVL0:
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 3
+  55:main.c        **** #include <ADC_SAR_SEQ.h>
+  56:main.c        **** 
+  57:main.c        **** #define TIMER_CLK_FREQ 1000
+  58:main.c        **** 
+  59:main.c        **** 
+  60:main.c        **** #define CH0_N               (0x00u)
+  61:main.c        **** #define TEMP_CH             (0x01u)
+  62:main.c        **** #define DELAY_1SEC          (1000u)
+  63:main.c        **** 
+  64:main.c        **** /* Get actual Vref. value from ADC SAR sequencer */
+  65:main.c        **** //#define ADC_VREF_VALUE_V    ((float)ADC_SAR_SEQ_DEFAULT_VREF_MV_VALUE/1000.0)
+  66:main.c        **** 
+  67:main.c        **** volatile uint32 dataReady = 0u;
+  68:main.c        **** volatile int16 result[ADC_SAR_SEQ_TOTAL_CHANNELS_NUM];
+  69:main.c        **** volatile uint32 timer_delay = 0u;
+  70:main.c        **** 
+  71:main.c        **** 
+  72:main.c        **** /*******************************************************************************
+  73:main.c        **** * Function Name: WriteCommandPacket
+  74:main.c        **** ********************************************************************************
+  75:main.c        **** * 
+  76:main.c        **** * Summary:
+  77:main.c        **** *  Master initiates the transfer to write command packet into the slave.
+  78:main.c        **** *  The status of the transfer is returned.
+  79:main.c        **** *
+  80:main.c        **** * Parameters:
+  81:main.c        **** *  cmd: command to execute. Supported commands:
+  82:main.c        **** *   - CMD_SET_RED:   set red color of the LED.
+  83:main.c        **** *   - CMD_SET_GREEN: set green color of the LED.
+  84:main.c        **** *   - CMD_SET_BLUE:  set blue color of the LED.
+  85:main.c        **** *   - CMD_SET_OFF:   turn off the LED.
+  86:main.c        **** *
+  87:main.c        **** * Return:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 3
 
 
-  33 0000 00B5     		push	{lr}
-  34              		.cfi_def_cfa_offset 4
-  35              		.cfi_offset 14, -4
-  36 0002 8FB0     		sub	sp, sp, #60
-  37              		.cfi_def_cfa_offset 64
-  38 0004 0200     		movs	r2, r0
-  39 0006 0B00     		movs	r3, r1
-  83:main.c        ****     char a [50]; 
-  84:main.c        ****     sprintf( a, "Temperature: %d, Humidity: %d\n", temp, humid); 
-  40              		.loc 1 84 0
-  41 0008 0449     		ldr	r1, .L2
-  42              	.LVL1:
-  43 000a 01A8     		add	r0, sp, #4
-  44              	.LVL2:
-  45 000c FFF7FEFF 		bl	sprintf
-  46              	.LVL3:
-  85:main.c        ****     UART_UartPutString(a);
-  47              		.loc 1 85 0
-  48 0010 01A8     		add	r0, sp, #4
-  49 0012 FFF7FEFF 		bl	UART_UartPutString
-  50              	.LVL4:
-  86:main.c        **** }
-  51              		.loc 1 86 0
-  52 0016 0FB0     		add	sp, sp, #60
-  53              		@ sp needed
-  54 0018 00BD     		pop	{pc}
-  55              	.L3:
-  56 001a C046     		.align	2
-  57              	.L2:
-  58 001c 00000000 		.word	.LC0
-  59              		.cfi_endproc
-  60              	.LFE33:
-  61              		.size	UART_printFormat, .-UART_printFormat
-  62              		.section	.text.WriteCommandPacket,"ax",%progbits
-  63              		.align	2
-  64              		.global	WriteCommandPacket
-  65              		.code	16
-  66              		.thumb_func
-  67              		.type	WriteCommandPacket, %function
-  68              	WriteCommandPacket:
-  69              	.LFB34:
-  87:main.c        **** uint32 WriteCommandPacket(uint8 cmd)
-  88:main.c        **** {
-  70              		.loc 1 88 0
-  71              		.cfi_startproc
-  72              		@ args = 0, pretend = 0, frame = 8
-  73              		@ frame_needed = 0, uses_anonymous_args = 0
-  74              	.LVL5:
-  75 0000 10B5     		push	{r4, lr}
-  76              		.cfi_def_cfa_offset 8
-  77              		.cfi_offset 4, -8
-  78              		.cfi_offset 14, -4
-  79 0002 82B0     		sub	sp, sp, #8
-  80              		.cfi_def_cfa_offset 16
-  81              	.LVL6:
-  89:main.c        ****     uint8  buffer[BUFFER_SIZE]; 
-  90:main.c        ****     uint32 status = TRANSFER_ERROR;
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 4
-
-
-  91:main.c        ****     buffer[BUFFER_SIZE-1] = cmd; 
-  82              		.loc 1 91 0
-  83 0004 01AC     		add	r4, sp, #4
-  84 0006 2070     		strb	r0, [r4]
-  92:main.c        ****     /* Initialize buffer with packet */
-  93:main.c        ****    
+  88:main.c        **** *  Status of the data transfer. There are two statuses
+  89:main.c        **** *  - TRANSFER_CMPLT: transfer completed successfully.
+  90:main.c        **** *  - TRANSFER_ERROR: the error occurred while transfer.
+  91:main.c        **** *
+  92:main.c        **** *******************************************************************************/
+  93:main.c        **** /* global definitions */ 
   94:main.c        **** 
-  95:main.c        ****     (void) I2CM_I2CMasterClearStatus();
-  85              		.loc 1 95 0
-  86 0008 FFF7FEFF 		bl	I2CM_I2CMasterClearStatus
-  87              	.LVL7:
-  96:main.c        ****     
-  97:main.c        ****     /* Start I2C write and check status*/
-  98:main.c        ****     if(I2CM_I2C_MSTR_NO_ERROR == I2CM_I2CMasterWriteBuf(I2C_SLAVE_ADDR,
-  88              		.loc 1 98 0
-  89 000c 0023     		movs	r3, #0
-  90 000e 0122     		movs	r2, #1
-  91 0010 2100     		movs	r1, r4
-  92 0012 4020     		movs	r0, #64
-  93 0014 FFF7FEFF 		bl	I2CM_I2CMasterWriteBuf
-  94              	.LVL8:
-  95 0018 0028     		cmp	r0, #0
-  96 001a 0DD1     		bne	.L7
-  97              	.L6:
-  99:main.c        ****                                     buffer, PACKET_SIZE,
- 100:main.c        ****                                     I2CM_I2C_MODE_COMPLETE_XFER))
- 101:main.c        ****     {
- 102:main.c        ****         /*If I2C write started without errors, 
- 103:main.c        ****         / wait until I2C Master completes write transfer 
- 104:main.c        ****         */
- 105:main.c        ****         while (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_WR_CMPLT))
-  98              		.loc 1 105 0 discriminator 1
-  99 001c FFF7FEFF 		bl	I2CM_I2CMasterStatus
- 100              	.LVL9:
- 101 0020 8307     		lsls	r3, r0, #30
- 102 0022 FBD5     		bpl	.L6
- 106:main.c        ****         {
- 107:main.c        ****             /* Wait */
- 108:main.c        ****         }
- 109:main.c        ****         
- 110:main.c        ****         /* Display transfer status */
- 111:main.c        ****         if (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_ERR_XFER))
- 103              		.loc 1 111 0
- 104 0024 FFF7FEFF 		bl	I2CM_I2CMasterStatus
- 105              	.LVL10:
- 106 0028 8305     		lsls	r3, r0, #22
- 107 002a 07D4     		bmi	.L8
- 112:main.c        ****         {
- 113:main.c        ****             /* Check if all bytes was written */
- 114:main.c        ****             if (I2CM_I2CMasterGetWriteBufSize() == BUFFER_SIZE)
- 108              		.loc 1 114 0
- 109 002c FFF7FEFF 		bl	I2CM_I2CMasterGetWriteBufSize
- 110              	.LVL11:
- 111 0030 0128     		cmp	r0, #1
- 112 0032 05D0     		beq	.L9
-  90:main.c        ****     buffer[BUFFER_SIZE-1] = cmd; 
- 113              		.loc 1 90 0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 5
+  95:main.c        **** 
+  96:main.c        **** 
+  97:main.c        **** 
+  98:main.c        **** void UART_printFormat(int temp , int humid){
+  99:main.c        ****     char a [50]; 
+ 100:main.c        ****     sprintf( a, "Temperature: %d, Humidity: %d\n", temp, humid); 
+ 101:main.c        ****     UART_UartPutString(a);
+ 102:main.c        **** }
+ 103:main.c        **** uint32 WriteCommandPacket(uint8 cmd)
+ 104:main.c        **** {
+ 105:main.c        ****     uint8  buffer[BUFFER_SIZE]; 
+ 106:main.c        ****     uint32 status = TRANSFER_ERROR;
+ 107:main.c        ****     buffer[BUFFER_SIZE-1] = cmd; 
+ 108:main.c        ****     /* Initialize buffer with packet */
+ 109:main.c        ****    
+ 110:main.c        **** 
+ 111:main.c        ****     (void) I2CM_I2CMasterClearStatus();
+ 112:main.c        ****     
+ 113:main.c        ****     /* Start I2C write and check status*/
+ 114:main.c        ****     if(I2CM_I2C_MSTR_NO_ERROR == I2CM_I2CMasterWriteBuf(I2C_SLAVE_ADDR,
+ 115:main.c        ****                                     buffer, PACKET_SIZE,
+ 116:main.c        ****                                     I2CM_I2C_MODE_COMPLETE_XFER))
+ 117:main.c        ****     {
+ 118:main.c        ****          
+ 119:main.c        ****         /*If I2C write started without errors, 
+ 120:main.c        ****         / wait until I2C Master completes write transfer 
+ 121:main.c        ****         */
+ 122:main.c        ****         while (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_WR_CMPLT))
+ 123:main.c        ****         {
+ 124:main.c        ****             /* Wait */
+ 125:main.c        ****         }
+ 126:main.c        ****         
+ 127:main.c        ****         /* Display transfer status */
+ 128:main.c        ****         if (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_ERR_XFER))
+ 129:main.c        ****         {
+ 130:main.c        ****             /* Check if all bytes was written */
+ 131:main.c        ****             if (I2CM_I2CMasterGetWriteBufSize() == BUFFER_SIZE)
+ 132:main.c        ****             {
+ 133:main.c        ****                 status = TRANSFER_CMPLT;
+ 134:main.c        ****             }
+ 135:main.c        ****         }
+ 136:main.c        ****     }
+ 137:main.c        **** 
+ 138:main.c        ****     return (status);
+ 139:main.c        **** }
+ 140:main.c        **** 
+ 141:main.c        **** /*******************************************************************************
+ 142:main.c        **** * Function Name: ReadStatusPacket
+ 143:main.c        **** ********************************************************************************
+ 144:main.c        **** * 
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 4
 
 
- 114 0034 FF20     		movs	r0, #255
- 115 0036 04E0     		b	.L5
- 116              	.L7:
- 117 0038 FF20     		movs	r0, #255
- 118 003a 02E0     		b	.L5
- 119              	.L8:
- 120 003c FF20     		movs	r0, #255
- 121 003e 00E0     		b	.L5
- 122              	.L9:
- 115:main.c        ****             {
- 116:main.c        ****                 status = TRANSFER_CMPLT;
- 123              		.loc 1 116 0
- 124 0040 0020     		movs	r0, #0
- 125              	.L5:
- 126              	.LVL12:
- 117:main.c        ****             }
- 118:main.c        ****         }
- 119:main.c        ****     }
- 120:main.c        **** 
- 121:main.c        ****     return (status);
- 122:main.c        **** }
- 127              		.loc 1 122 0
- 128 0042 02B0     		add	sp, sp, #8
- 129              		@ sp needed
- 130 0044 10BD     		pop	{r4, pc}
- 131              		.cfi_endproc
- 132              	.LFE34:
- 133              		.size	WriteCommandPacket, .-WriteCommandPacket
- 134 0046 C046     		.section	.text.readSensor,"ax",%progbits
- 135              		.align	2
- 136              		.global	readSensor
- 137              		.code	16
- 138              		.thumb_func
- 139              		.type	readSensor, %function
- 140              	readSensor:
- 141              	.LFB35:
- 123:main.c        **** 
- 124:main.c        **** 
- 125:main.c        **** /*******************************************************************************
- 126:main.c        **** * Function Name: ReadStatusPacket
- 127:main.c        **** ********************************************************************************
- 128:main.c        **** * 
- 129:main.c        **** * Summary:
- 130:main.c        **** *  Master initiates the transfer to read status packet from the Slave.
- 131:main.c        **** *  The status of the transfer is returned.
- 132:main.c        **** *
- 133:main.c        **** * Parameters:
- 134:main.c        **** *  None
- 135:main.c        **** *
- 136:main.c        **** * Return:
- 137:main.c        **** *  Status of the transfer. There are two statuses
- 138:main.c        **** *  - TRANSFER_CMPLT: transfer completed successfully.
- 139:main.c        **** *  - TRANSFER_ERROR: the error occurred while transfer.
- 140:main.c        **** *
- 141:main.c        **** *******************************************************************************/
- 142:main.c        **** uint32 readSensor(uint8 cmd)
- 143:main.c        **** {
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 6
+ 145:main.c        **** * Summary:
+ 146:main.c        **** *  Master initiates the transfer to read status packet from the Slave.
+ 147:main.c        **** *  The status of the transfer is returned.
+ 148:main.c        **** *
+ 149:main.c        **** * Parameters:
+ 150:main.c        **** *  None
+ 151:main.c        **** *
+ 152:main.c        **** * Return:
+ 153:main.c        **** *  Status of the transfer. There are two statuses
+ 154:main.c        **** *  - TRANSFER_CMPLT: transfer completed successfully.
+ 155:main.c        **** *  - TRANSFER_ERROR: the error occurred while transfer.
+ 156:main.c        **** *
+ 157:main.c        **** *******************************************************************************/
+ 158:main.c        **** uint32 readSensor(uint8 cmd)
+ 159:main.c        **** {
+ 160:main.c        ****     WriteCommandPacket(cmd); 
+ 161:main.c        ****     
+ 162:main.c        ****     uint8  buffer[RECEIVE_BUFFER_SIZE];
+ 163:main.c        ****     //uint32 status = TRANSFER_ERROR;
+ 164:main.c        ****     uint32 value = 0 ; 
+ 165:main.c        ****     
+ 166:main.c        ****     (void) I2CM_I2CMasterClearStatus();
+ 167:main.c        ****     
+ 168:main.c        ****     if(I2CM_I2C_MSTR_NO_ERROR ==  I2CM_I2CMasterReadBuf(I2C_SLAVE_ADDR,
+ 169:main.c        ****                                     buffer, RECEIVE_PACKET_SIZE,
+ 170:main.c        ****                                     I2CM_I2C_MODE_COMPLETE_XFER))
+ 171:main.c        ****     {
+ 172:main.c        ****         /* If I2C read started without errors, 
+ 173:main.c        ****         / wait until master complete read transfer */
+ 174:main.c        ****         while (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_RD_CMPLT))
+ 175:main.c        ****         {
+ 176:main.c        ****             /* Wait */
+ 177:main.c        ****         }
+ 178:main.c        ****         
+ 179:main.c        ****         /* Display transfer status */
+ 180:main.c        ****         //if (0u == (I2CM_I2C_MSTAT_ERR_XFER & I2CM_I2CMasterStatus()))
+ 181:main.c        ****         //{     
+ 182:main.c        ****         //    }
+ 183:main.c        ****             
+ 184:main.c        ****                 value = buffer[0] << 8; 
+ 185:main.c        ****                 value += buffer[1]; 
+ 186:main.c        ****                 value &= ~0x0003; 
+ 187:main.c        ****               
+ 188:main.c        ****         }
+ 189:main.c        ****    
+ 190:main.c        **** 
+ 191:main.c        ****     return (value);
+ 192:main.c        **** }
+ 193:main.c        **** 
+ 194:main.c        **** float getTemperature(){
+ 195:main.c        ****     return (-46.85 + 175.72 / 65536.0 * (float)(readSensor(eTempHoldCmd)));    
+ 196:main.c        **** }
+ 197:main.c        **** 
+ 198:main.c        **** float getHumidity(){
+ 199:main.c        ****     return (-6.0 + 125.0 / 65536.0 * (float)(readSensor(eRHumidityCmd))); 
+ 200:main.c        **** }
+ 201:main.c        **** 
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 5
 
 
- 142              		.loc 1 143 0
- 143              		.cfi_startproc
- 144              		@ args = 0, pretend = 0, frame = 8
- 145              		@ frame_needed = 0, uses_anonymous_args = 0
- 146              	.LVL13:
- 147 0000 00B5     		push	{lr}
- 148              		.cfi_def_cfa_offset 4
- 149              		.cfi_offset 14, -4
- 150 0002 83B0     		sub	sp, sp, #12
- 151              		.cfi_def_cfa_offset 16
- 144:main.c        ****     WriteCommandPacket(cmd); 
- 152              		.loc 1 144 0
- 153 0004 FFF7FEFF 		bl	WriteCommandPacket
- 154              	.LVL14:
- 145:main.c        ****     
- 146:main.c        ****     uint8  buffer[RECEIVE_BUFFER_SIZE];
- 147:main.c        ****     //uint32 status = TRANSFER_ERROR;
- 148:main.c        ****     uint32 value = 0 ; 
- 149:main.c        ****     
- 150:main.c        ****     (void) I2CM_I2CMasterClearStatus();
- 155              		.loc 1 150 0
- 156 0008 FFF7FEFF 		bl	I2CM_I2CMasterClearStatus
- 157              	.LVL15:
- 151:main.c        ****     
- 152:main.c        ****     if(I2CM_I2C_MSTR_NO_ERROR ==  I2CM_I2CMasterReadBuf(I2C_SLAVE_ADDR,
- 158              		.loc 1 152 0
- 159 000c 0023     		movs	r3, #0
- 160 000e 0322     		movs	r2, #3
- 161 0010 01A9     		add	r1, sp, #4
- 162 0012 4020     		movs	r0, #64
- 163 0014 FFF7FEFF 		bl	I2CM_I2CMasterReadBuf
- 164              	.LVL16:
- 165 0018 0028     		cmp	r0, #0
- 166 001a 0BD1     		bne	.L13
- 167              	.L12:
- 153:main.c        ****                                     buffer, RECEIVE_PACKET_SIZE,
- 154:main.c        ****                                     I2CM_I2C_MODE_COMPLETE_XFER))
- 155:main.c        ****     {
- 156:main.c        ****         /* If I2C read started without errors, 
- 157:main.c        ****         / wait until master complete read transfer */
- 158:main.c        ****         while (0u == (I2CM_I2CMasterStatus() & I2CM_I2C_MSTAT_RD_CMPLT))
- 168              		.loc 1 158 0 discriminator 1
- 169 001c FFF7FEFF 		bl	I2CM_I2CMasterStatus
- 170              	.LVL17:
- 171 0020 C307     		lsls	r3, r0, #31
- 172 0022 FBD5     		bpl	.L12
- 159:main.c        ****         {
- 160:main.c        ****             /* Wait */
- 161:main.c        ****         }
- 162:main.c        ****         
- 163:main.c        ****         /* Display transfer status */
- 164:main.c        ****         //if (0u == (I2CM_I2C_MSTAT_ERR_XFER & I2CM_I2CMasterStatus()))
- 165:main.c        ****         //{     
- 166:main.c        ****         //    }
- 167:main.c        ****             
- 168:main.c        ****                 value = buffer[0] << 8; 
- 173              		.loc 1 168 0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 7
+ 202:main.c        **** void runTempHumidModule(){
+ 203:main.c        ****         uint32 humid = 0 ; 
+ 204:main.c        ****         uint32 temperature = 0; 
+ 205:main.c        ****         humid = getHumidity();
+ 206:main.c        ****         temperature = getTemperature(); 
+ 207:main.c        ****         
+ 208:main.c        ****         UART_printFormat(temperature , humid); 
+ 209:main.c        **** }
+ 210:main.c        **** 
+ 211:main.c        **** 
+ 212:main.c        **** 
+ 213:main.c        **** /************************************************************
+ 214:main.c        **** *function Block: Timer Counter related
+ 215:main.c        **** *************************************************************/
+ 216:main.c        **** //void printRPM(int input){
+ 217:main.c        ****     //char a [50]; 
+ 218:main.c        ****     //sprintf(a , "rpm: %d\n", input); 
+ 219:main.c        ****     //UART_UartPutString(a); 
+ 220:main.c        **** //}
+ 221:main.c        **** 
+ 222:main.c        **** /*CY_ISR(Ctr_Function)
+ 223:main.c        **** {
+ 224:main.c        ****     uint32 counter ;
+ 225:main.c        ****     float data = 0 ; 
+ 226:main.c        ****     counter = Timer_ReadCounter();  // Read counter value
+ 227:main.c        ****     Timer_WriteCounter(0u);         // Reset counter to zero
+ 228:main.c        ****     InputPin_ClearInterrupt();
+ 229:main.c        ****     
+ 230:main.c        ****     data = counter;    // fill array  with values
+ 231:main.c        ****     //printRPM(counter); 
+ 232:main.c        ****     data = data * 0.001; 
+ 233:main.c        ****     if(data != 0)
+ 234:main.c        ****         data = 1 / data; 
+ 235:main.c        ****     //find rpm (three propellors) 
+ 236:main.c        ****     data = data * 60 / 3; 
+ 237:main.c        ****     if (data < MAX_TURBINE_RPM && data >= 0) 
+ 238:main.c        ****         printRPM(data); 
+ 239:main.c        **** }*/
+ 240:main.c        **** 
+ 241:main.c        **** /** period function to reduce the communication rate of sensors */ 
+ 242:main.c        **** CY_ISR(Period_function)
+ 243:main.c        **** {
+ 244:main.c        ****     TimerHumidityTemp_ClearInterrupt(Timer_INTR_MASK_TC);
+ 245:main.c        ****     //printRPM(1000);
+ 246:main.c        ****     //runTempHumidModule(); 
+ 247:main.c        **** }
+ 248:main.c        **** 
+ 249:main.c        **** 
+ 250:main.c        **** CY_ISR(ADC_SAR_SEQ_ISR_LOC)
+ 251:main.c        **** {
+  28              		.loc 1 251 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 70B5     		push	{r4, r5, r6, lr}
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 4, -16
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 6
 
 
- 174 0024 01AB     		add	r3, sp, #4
- 175 0026 1878     		ldrb	r0, [r3]
- 176 0028 0002     		lsls	r0, r0, #8
- 177              	.LVL18:
- 169:main.c        ****                 value += buffer[1]; 
- 178              		.loc 1 169 0
- 179 002a 5B78     		ldrb	r3, [r3, #1]
- 180 002c 1818     		adds	r0, r3, r0
- 181              	.LVL19:
- 170:main.c        ****                 value &= ~0x0003; 
- 182              		.loc 1 170 0
- 183 002e 0323     		movs	r3, #3
- 184 0030 9843     		bics	r0, r3
- 185              	.LVL20:
- 186 0032 00E0     		b	.L11
- 187              	.LVL21:
+  35              		.cfi_offset 5, -12
+  36              		.cfi_offset 6, -8
+  37              		.cfi_offset 14, -4
+ 252:main.c        ****     uint32 intr_status;
+ 253:main.c        ****     uint32 range_status;
+ 254:main.c        **** 
+ 255:main.c        ****     /* Read interrupt status registers */
+ 256:main.c        ****     intr_status = ADC_SAR_SEQ_SAR_INTR_MASKED_REG;
+  38              		.loc 1 256 0
+  39 0002 0B4B     		ldr	r3, .L4
+  40 0004 1C68     		ldr	r4, [r3]
+  41              	.LVL0:
+ 257:main.c        ****     /* Check for End of Scan interrupt */
+ 258:main.c        ****     if((intr_status & ADC_SAR_SEQ_EOS_MASK) != 0u)
+  42              		.loc 1 258 0
+  43 0006 E307     		lsls	r3, r4, #31
+  44 0008 0FD5     		bpl	.L2
+ 259:main.c        ****     {
+ 260:main.c        ****         /* Read range detect status */
+ 261:main.c        ****         range_status = ADC_SAR_SEQ_SAR_RANGE_INTR_MASKED_REG;
+  45              		.loc 1 261 0
+  46 000a 0A4B     		ldr	r3, .L4+4
+  47 000c 1D68     		ldr	r5, [r3]
+  48              	.LVL1:
+ 262:main.c        ****         /* Verify that the conversion result met the condition Low_Limit <= Result < High_Limit  */
+ 263:main.c        ****         if((range_status & (uint32)(1ul << CH0_N)) != 0u) 
+  49              		.loc 1 263 0
+  50 000e EB07     		lsls	r3, r5, #31
+  51 0010 04D5     		bpl	.L3
+ 264:main.c        ****         {
+ 265:main.c        ****             /* Read conversion result */
+ 266:main.c        ****             result[CH0_N] = ADC_SAR_SEQ_GetResult16(CH0_N);
+  52              		.loc 1 266 0
+  53 0012 0020     		movs	r0, #0
+  54 0014 FFF7FEFF 		bl	ADC_SAR_SEQ_GetResult16
+  55              	.LVL2:
+  56 0018 074B     		ldr	r3, .L4+8
+  57 001a 1880     		strh	r0, [r3]
+  58              	.L3:
+ 267:main.c        ****             /* Set PWM compare from channel0 */
+ 268:main.c        ****             //PWM_WriteCompare(result[CH0_N]);
+ 269:main.c        ****         }    
+ 270:main.c        **** 
+ 271:main.c        ****         /* Clear range detect status */
+ 272:main.c        ****         ADC_SAR_SEQ_SAR_RANGE_INTR_REG = range_status;
+  59              		.loc 1 272 0
+  60 001c 074B     		ldr	r3, .L4+12
+  61 001e 1D60     		str	r5, [r3]
+ 273:main.c        ****         dataReady |= ADC_SAR_SEQ_EOS_MASK;
+  62              		.loc 1 273 0
+  63 0020 074A     		ldr	r2, .L4+16
+  64 0022 1168     		ldr	r1, [r2]
+  65 0024 0123     		movs	r3, #1
+  66 0026 0B43     		orrs	r3, r1
+  67 0028 1360     		str	r3, [r2]
+  68              	.LVL3:
+  69              	.L2:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 7
+
+
+ 274:main.c        ****     }    
+ 275:main.c        **** 
+ 276:main.c        ****     /* Check for Injection End of Conversion */
+ 277:main.c        ****     //if((intr_status & ADC_SAR_SEQ_INJ_EOC_MASK) != 0u)
+ 278:main.c        ****     //{
+ 279:main.c        ****      //   result[TEMP_CH] = ADC_SAR_SEQ_GetResult16(TEMP_CH);
+ 280:main.c        ****      //   dataReady |= ADC_SAR_SEQ_INJ_EOC_MASK;
+ 281:main.c        ****     //}    
+ 282:main.c        **** 
+ 283:main.c        ****     /* Clear handled interrupt */
+ 284:main.c        ****     ADC_SAR_SEQ_SAR_INTR_REG = intr_status;
+  70              		.loc 1 284 0
+  71 002a 064B     		ldr	r3, .L4+20
+  72 002c 1C60     		str	r4, [r3]
+ 285:main.c        **** }
+  73              		.loc 1 285 0
+  74              		@ sp needed
+  75              	.LVL4:
+  76 002e 70BD     		pop	{r4, r5, r6, pc}
+  77              	.L5:
+  78              		.align	2
+  79              	.L4:
+  80 0030 1C021A40 		.word	1075446300
+  81 0034 3C021A40 		.word	1075446332
+  82 0038 00000000 		.word	result
+  83 003c 30021A40 		.word	1075446320
+  84 0040 00000000 		.word	.LANCHOR0
+  85 0044 10021A40 		.word	1075446288
+  86              		.cfi_endproc
+  87              	.LFE40:
+  88              		.size	ADC_SAR_SEQ_ISR_LOC, .-ADC_SAR_SEQ_ISR_LOC
+  89              		.section	.text.UART_printFormat,"ax",%progbits
+  90              		.align	2
+  91              		.global	UART_printFormat
+  92              		.code	16
+  93              		.thumb_func
+  94              		.type	UART_printFormat, %function
+  95              	UART_printFormat:
+  96              	.LFB33:
+  98:main.c        ****     char a [50]; 
+  97              		.loc 1 98 0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 56
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              	.LVL5:
+ 102 0000 00B5     		push	{lr}
+ 103              		.cfi_def_cfa_offset 4
+ 104              		.cfi_offset 14, -4
+ 105 0002 8FB0     		sub	sp, sp, #60
+ 106              		.cfi_def_cfa_offset 64
+ 107 0004 0200     		movs	r2, r0
+ 108 0006 0B00     		movs	r3, r1
+ 100:main.c        ****     UART_UartPutString(a);
+ 109              		.loc 1 100 0
+ 110 0008 0449     		ldr	r1, .L7
+ 111              	.LVL6:
+ 112 000a 01A8     		add	r0, sp, #4
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 8
+
+
+ 113              	.LVL7:
+ 114 000c FFF7FEFF 		bl	sprintf
+ 115              	.LVL8:
+ 101:main.c        **** }
+ 116              		.loc 1 101 0
+ 117 0010 01A8     		add	r0, sp, #4
+ 118 0012 FFF7FEFF 		bl	UART_UartPutString
+ 119              	.LVL9:
+ 102:main.c        **** uint32 WriteCommandPacket(uint8 cmd)
+ 120              		.loc 1 102 0
+ 121 0016 0FB0     		add	sp, sp, #60
+ 122              		@ sp needed
+ 123 0018 00BD     		pop	{pc}
+ 124              	.L8:
+ 125 001a C046     		.align	2
+ 126              	.L7:
+ 127 001c 00000000 		.word	.LC2
+ 128              		.cfi_endproc
+ 129              	.LFE33:
+ 130              		.size	UART_printFormat, .-UART_printFormat
+ 131              		.section	.text.WriteCommandPacket,"ax",%progbits
+ 132              		.align	2
+ 133              		.global	WriteCommandPacket
+ 134              		.code	16
+ 135              		.thumb_func
+ 136              		.type	WriteCommandPacket, %function
+ 137              	WriteCommandPacket:
+ 138              	.LFB34:
+ 104:main.c        ****     uint8  buffer[BUFFER_SIZE]; 
+ 139              		.loc 1 104 0
+ 140              		.cfi_startproc
+ 141              		@ args = 0, pretend = 0, frame = 8
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143              	.LVL10:
+ 144 0000 10B5     		push	{r4, lr}
+ 145              		.cfi_def_cfa_offset 8
+ 146              		.cfi_offset 4, -8
+ 147              		.cfi_offset 14, -4
+ 148 0002 82B0     		sub	sp, sp, #8
+ 149              		.cfi_def_cfa_offset 16
+ 150              	.LVL11:
+ 107:main.c        ****     /* Initialize buffer with packet */
+ 151              		.loc 1 107 0
+ 152 0004 01AC     		add	r4, sp, #4
+ 153 0006 2070     		strb	r0, [r4]
+ 111:main.c        ****     
+ 154              		.loc 1 111 0
+ 155 0008 FFF7FEFF 		bl	I2CM_I2CMasterClearStatus
+ 156              	.LVL12:
+ 114:main.c        ****                                     buffer, PACKET_SIZE,
+ 157              		.loc 1 114 0
+ 158 000c 0023     		movs	r3, #0
+ 159 000e 0122     		movs	r2, #1
+ 160 0010 2100     		movs	r1, r4
+ 161 0012 4020     		movs	r0, #64
+ 162 0014 FFF7FEFF 		bl	I2CM_I2CMasterWriteBuf
+ 163              	.LVL13:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 9
+
+
+ 164 0018 0028     		cmp	r0, #0
+ 165 001a 0DD1     		bne	.L12
+ 166              	.L11:
+ 122:main.c        ****         {
+ 167              		.loc 1 122 0 discriminator 1
+ 168 001c FFF7FEFF 		bl	I2CM_I2CMasterStatus
+ 169              	.LVL14:
+ 170 0020 8307     		lsls	r3, r0, #30
+ 171 0022 FBD5     		bpl	.L11
+ 128:main.c        ****         {
+ 172              		.loc 1 128 0
+ 173 0024 FFF7FEFF 		bl	I2CM_I2CMasterStatus
+ 174              	.LVL15:
+ 175 0028 8305     		lsls	r3, r0, #22
+ 176 002a 07D4     		bmi	.L13
+ 131:main.c        ****             {
+ 177              		.loc 1 131 0
+ 178 002c FFF7FEFF 		bl	I2CM_I2CMasterGetWriteBufSize
+ 179              	.LVL16:
+ 180 0030 0128     		cmp	r0, #1
+ 181 0032 05D0     		beq	.L14
+ 106:main.c        ****     buffer[BUFFER_SIZE-1] = cmd; 
+ 182              		.loc 1 106 0
+ 183 0034 FF20     		movs	r0, #255
+ 184 0036 04E0     		b	.L10
+ 185              	.L12:
+ 186 0038 FF20     		movs	r0, #255
+ 187 003a 02E0     		b	.L10
  188              	.L13:
- 148:main.c        ****     
- 189              		.loc 1 148 0
- 190 0034 0020     		movs	r0, #0
- 191              	.LVL22:
- 192              	.L11:
- 171:main.c        ****               
- 172:main.c        ****         }
- 173:main.c        ****    
- 174:main.c        **** 
- 175:main.c        ****     return (value);
- 176:main.c        **** }
- 193              		.loc 1 176 0
- 194 0036 03B0     		add	sp, sp, #12
- 195              		@ sp needed
- 196 0038 00BD     		pop	{pc}
- 197              		.cfi_endproc
- 198              	.LFE35:
- 199              		.size	readSensor, .-readSensor
- 200              		.global	__aeabi_ui2f
- 201              		.global	__aeabi_f2d
- 202              		.global	__aeabi_dmul
- 203              		.global	__aeabi_dsub
- 204              		.global	__aeabi_d2f
- 205 003a C046     		.section	.text.getTemperature,"ax",%progbits
- 206              		.align	2
- 207              		.global	getTemperature
- 208              		.code	16
- 209              		.thumb_func
- 210              		.type	getTemperature, %function
- 211              	getTemperature:
- 212              	.LFB36:
- 177:main.c        **** 
- 178:main.c        **** float getTemperature(){
- 213              		.loc 1 178 0
- 214              		.cfi_startproc
- 215              		@ args = 0, pretend = 0, frame = 0
- 216              		@ frame_needed = 0, uses_anonymous_args = 0
- 217 0000 10B5     		push	{r4, lr}
- 218              		.cfi_def_cfa_offset 8
- 219              		.cfi_offset 4, -8
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 8
+ 189 003c FF20     		movs	r0, #255
+ 190 003e 00E0     		b	.L10
+ 191              	.L14:
+ 133:main.c        ****             }
+ 192              		.loc 1 133 0
+ 193 0040 0020     		movs	r0, #0
+ 194              	.L10:
+ 195              	.LVL17:
+ 139:main.c        **** 
+ 196              		.loc 1 139 0
+ 197 0042 02B0     		add	sp, sp, #8
+ 198              		@ sp needed
+ 199 0044 10BD     		pop	{r4, pc}
+ 200              		.cfi_endproc
+ 201              	.LFE34:
+ 202              		.size	WriteCommandPacket, .-WriteCommandPacket
+ 203 0046 C046     		.section	.text.readSensor,"ax",%progbits
+ 204              		.align	2
+ 205              		.global	readSensor
+ 206              		.code	16
+ 207              		.thumb_func
+ 208              		.type	readSensor, %function
+ 209              	readSensor:
+ 210              	.LFB35:
+ 159:main.c        ****     WriteCommandPacket(cmd); 
+ 211              		.loc 1 159 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 8
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 10
 
 
- 220              		.cfi_offset 14, -4
- 179:main.c        ****     return (-46.85 + 175.72 / 65536.0 * (float)(readSensor(eTempHoldCmd)));    
- 221              		.loc 1 179 0
- 222 0002 E320     		movs	r0, #227
- 223 0004 FFF7FEFF 		bl	readSensor
- 224              	.LVL23:
- 225 0008 FFF7FEFF 		bl	__aeabi_ui2f
- 226              	.LVL24:
- 227 000c FFF7FEFF 		bl	__aeabi_f2d
- 228              	.LVL25:
- 229 0010 054A     		ldr	r2, .L15
- 230 0012 064B     		ldr	r3, .L15+4
- 231 0014 FFF7FEFF 		bl	__aeabi_dmul
- 232              	.LVL26:
- 233 0018 054A     		ldr	r2, .L15+8
- 234 001a 064B     		ldr	r3, .L15+12
- 235 001c FFF7FEFF 		bl	__aeabi_dsub
- 236              	.LVL27:
- 237 0020 FFF7FEFF 		bl	__aeabi_d2f
- 238              	.LVL28:
- 180:main.c        **** }
- 239              		.loc 1 180 0
- 240              		@ sp needed
- 241 0024 10BD     		pop	{r4, pc}
- 242              	.L16:
- 243 0026 C046     		.align	2
- 244              	.L15:
- 245 0028 D7A3703D 		.word	1030792151
- 246 002c 0AF7653F 		.word	1063646986
- 247 0030 CDCCCCCC 		.word	-858993459
- 248 0034 CC6C4740 		.word	1078422732
- 249              		.cfi_endproc
- 250              	.LFE36:
- 251              		.size	getTemperature, .-getTemperature
- 252              		.section	.text.getHumidity,"ax",%progbits
- 253              		.align	2
- 254              		.global	getHumidity
- 255              		.code	16
- 256              		.thumb_func
- 257              		.type	getHumidity, %function
- 258              	getHumidity:
- 259              	.LFB37:
- 181:main.c        **** 
- 182:main.c        **** float getHumidity(){
- 260              		.loc 1 182 0
- 261              		.cfi_startproc
- 262              		@ args = 0, pretend = 0, frame = 0
- 263              		@ frame_needed = 0, uses_anonymous_args = 0
- 264 0000 10B5     		push	{r4, lr}
- 265              		.cfi_def_cfa_offset 8
- 266              		.cfi_offset 4, -8
- 267              		.cfi_offset 14, -4
- 183:main.c        ****     return (-6.0 + 125.0 / 65536.0 * (float)(readSensor(eRHumidityCmd))); 
- 268              		.loc 1 183 0
- 269 0002 E520     		movs	r0, #229
- 270 0004 FFF7FEFF 		bl	readSensor
- 271              	.LVL29:
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 9
+ 214              		@ frame_needed = 0, uses_anonymous_args = 0
+ 215              	.LVL18:
+ 216 0000 00B5     		push	{lr}
+ 217              		.cfi_def_cfa_offset 4
+ 218              		.cfi_offset 14, -4
+ 219 0002 83B0     		sub	sp, sp, #12
+ 220              		.cfi_def_cfa_offset 16
+ 160:main.c        ****     
+ 221              		.loc 1 160 0
+ 222 0004 FFF7FEFF 		bl	WriteCommandPacket
+ 223              	.LVL19:
+ 166:main.c        ****     
+ 224              		.loc 1 166 0
+ 225 0008 FFF7FEFF 		bl	I2CM_I2CMasterClearStatus
+ 226              	.LVL20:
+ 168:main.c        ****                                     buffer, RECEIVE_PACKET_SIZE,
+ 227              		.loc 1 168 0
+ 228 000c 0023     		movs	r3, #0
+ 229 000e 0322     		movs	r2, #3
+ 230 0010 01A9     		add	r1, sp, #4
+ 231 0012 4020     		movs	r0, #64
+ 232 0014 FFF7FEFF 		bl	I2CM_I2CMasterReadBuf
+ 233              	.LVL21:
+ 234 0018 0028     		cmp	r0, #0
+ 235 001a 0BD1     		bne	.L18
+ 236              	.L17:
+ 174:main.c        ****         {
+ 237              		.loc 1 174 0 discriminator 1
+ 238 001c FFF7FEFF 		bl	I2CM_I2CMasterStatus
+ 239              	.LVL22:
+ 240 0020 C307     		lsls	r3, r0, #31
+ 241 0022 FBD5     		bpl	.L17
+ 184:main.c        ****                 value += buffer[1]; 
+ 242              		.loc 1 184 0
+ 243 0024 01AB     		add	r3, sp, #4
+ 244 0026 1878     		ldrb	r0, [r3]
+ 245 0028 0002     		lsls	r0, r0, #8
+ 246              	.LVL23:
+ 185:main.c        ****                 value &= ~0x0003; 
+ 247              		.loc 1 185 0
+ 248 002a 5B78     		ldrb	r3, [r3, #1]
+ 249 002c 1818     		adds	r0, r3, r0
+ 250              	.LVL24:
+ 186:main.c        ****               
+ 251              		.loc 1 186 0
+ 252 002e 0323     		movs	r3, #3
+ 253 0030 9843     		bics	r0, r3
+ 254              	.LVL25:
+ 255 0032 00E0     		b	.L16
+ 256              	.LVL26:
+ 257              	.L18:
+ 164:main.c        ****     
+ 258              		.loc 1 164 0
+ 259 0034 0020     		movs	r0, #0
+ 260              	.LVL27:
+ 261              	.L16:
+ 192:main.c        **** 
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 11
 
 
- 272 0008 FFF7FEFF 		bl	__aeabi_ui2f
- 273              	.LVL30:
- 274 000c FFF7FEFF 		bl	__aeabi_f2d
- 275              	.LVL31:
- 276 0010 0022     		movs	r2, #0
- 277 0012 054B     		ldr	r3, .L18
- 278 0014 FFF7FEFF 		bl	__aeabi_dmul
- 279              	.LVL32:
- 280 0018 0022     		movs	r2, #0
- 281 001a 044B     		ldr	r3, .L18+4
- 282 001c FFF7FEFF 		bl	__aeabi_dsub
- 283              	.LVL33:
- 284 0020 FFF7FEFF 		bl	__aeabi_d2f
- 285              	.LVL34:
- 184:main.c        **** }
- 286              		.loc 1 184 0
- 287              		@ sp needed
- 288 0024 10BD     		pop	{r4, pc}
- 289              	.L19:
- 290 0026 C046     		.align	2
- 291              	.L18:
- 292 0028 00405F3F 		.word	1063206912
- 293 002c 00001840 		.word	1075314688
- 294              		.cfi_endproc
- 295              	.LFE37:
- 296              		.size	getHumidity, .-getHumidity
- 297              		.global	__aeabi_f2uiz
- 298              		.section	.text.runTempHumidModule,"ax",%progbits
- 299              		.align	2
- 300              		.global	runTempHumidModule
- 301              		.code	16
- 302              		.thumb_func
- 303              		.type	runTempHumidModule, %function
- 304              	runTempHumidModule:
- 305              	.LFB38:
- 185:main.c        **** 
- 186:main.c        **** void runTempHumidModule(){
- 306              		.loc 1 186 0
- 307              		.cfi_startproc
- 308              		@ args = 0, pretend = 0, frame = 0
- 309              		@ frame_needed = 0, uses_anonymous_args = 0
- 310 0000 10B5     		push	{r4, lr}
- 311              		.cfi_def_cfa_offset 8
- 312              		.cfi_offset 4, -8
- 313              		.cfi_offset 14, -4
- 314              	.LVL35:
- 187:main.c        ****         uint32 humid = 0 ; 
- 188:main.c        ****         uint32 temperature = 0; 
- 189:main.c        ****         humid = getHumidity();
- 315              		.loc 1 189 0
- 316 0002 FFF7FEFF 		bl	getHumidity
- 317              	.LVL36:
- 318 0006 FFF7FEFF 		bl	__aeabi_f2uiz
- 319              	.LVL37:
- 320 000a 0400     		movs	r4, r0
- 321              	.LVL38:
- 190:main.c        ****         temperature = getTemperature(); 
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 10
-
-
- 322              		.loc 1 190 0
- 323 000c FFF7FEFF 		bl	getTemperature
- 324              	.LVL39:
- 325 0010 FFF7FEFF 		bl	__aeabi_f2uiz
- 326              	.LVL40:
- 191:main.c        ****         
- 192:main.c        ****         UART_printFormat(temperature , humid); 
- 327              		.loc 1 192 0
- 328 0014 2100     		movs	r1, r4
- 329 0016 FFF7FEFF 		bl	UART_printFormat
- 330              	.LVL41:
- 193:main.c        **** }
- 331              		.loc 1 193 0
- 332              		@ sp needed
- 333              	.LVL42:
- 334 001a 10BD     		pop	{r4, pc}
- 335              		.cfi_endproc
- 336              	.LFE38:
- 337              		.size	runTempHumidModule, .-runTempHumidModule
- 338              		.section	.text.printRPM,"ax",%progbits
- 339              		.align	2
- 340              		.global	printRPM
- 341              		.code	16
- 342              		.thumb_func
- 343              		.type	printRPM, %function
- 344              	printRPM:
- 345              	.LFB39:
- 194:main.c        **** 
- 195:main.c        **** 
+ 262              		.loc 1 192 0
+ 263 0036 03B0     		add	sp, sp, #12
+ 264              		@ sp needed
+ 265 0038 00BD     		pop	{pc}
+ 266              		.cfi_endproc
+ 267              	.LFE35:
+ 268              		.size	readSensor, .-readSensor
+ 269              		.global	__aeabi_ui2f
+ 270              		.global	__aeabi_f2d
+ 271              		.global	__aeabi_dmul
+ 272              		.global	__aeabi_dsub
+ 273              		.global	__aeabi_d2f
+ 274 003a C046     		.section	.text.getTemperature,"ax",%progbits
+ 275              		.align	2
+ 276              		.global	getTemperature
+ 277              		.code	16
+ 278              		.thumb_func
+ 279              		.type	getTemperature, %function
+ 280              	getTemperature:
+ 281              	.LFB36:
+ 194:main.c        ****     return (-46.85 + 175.72 / 65536.0 * (float)(readSensor(eTempHoldCmd)));    
+ 282              		.loc 1 194 0
+ 283              		.cfi_startproc
+ 284              		@ args = 0, pretend = 0, frame = 0
+ 285              		@ frame_needed = 0, uses_anonymous_args = 0
+ 286 0000 10B5     		push	{r4, lr}
+ 287              		.cfi_def_cfa_offset 8
+ 288              		.cfi_offset 4, -8
+ 289              		.cfi_offset 14, -4
+ 195:main.c        **** }
+ 290              		.loc 1 195 0
+ 291 0002 E320     		movs	r0, #227
+ 292 0004 FFF7FEFF 		bl	readSensor
+ 293              	.LVL28:
+ 294 0008 FFF7FEFF 		bl	__aeabi_ui2f
+ 295              	.LVL29:
+ 296 000c FFF7FEFF 		bl	__aeabi_f2d
+ 297              	.LVL30:
+ 298 0010 054A     		ldr	r2, .L20
+ 299 0012 064B     		ldr	r3, .L20+4
+ 300 0014 FFF7FEFF 		bl	__aeabi_dmul
+ 301              	.LVL31:
+ 302 0018 054A     		ldr	r2, .L20+8
+ 303 001a 064B     		ldr	r3, .L20+12
+ 304 001c FFF7FEFF 		bl	__aeabi_dsub
+ 305              	.LVL32:
+ 306 0020 FFF7FEFF 		bl	__aeabi_d2f
+ 307              	.LVL33:
  196:main.c        **** 
- 197:main.c        **** /************************************************************
- 198:main.c        **** *function Block: Timer Counter related
- 199:main.c        **** *************************************************************/
- 200:main.c        **** void printRPM(int input){
- 346              		.loc 1 200 0
- 347              		.cfi_startproc
- 348              		@ args = 0, pretend = 0, frame = 56
- 349              		@ frame_needed = 0, uses_anonymous_args = 0
- 350              	.LVL43:
- 351 0000 00B5     		push	{lr}
- 352              		.cfi_def_cfa_offset 4
- 353              		.cfi_offset 14, -4
- 354 0002 8FB0     		sub	sp, sp, #60
- 355              		.cfi_def_cfa_offset 64
- 356 0004 0200     		movs	r2, r0
- 201:main.c        ****     char a [50]; 
- 202:main.c        ****     sprintf(a , "rpm: %d\n", input); 
- 357              		.loc 1 202 0
- 358 0006 0449     		ldr	r1, .L22
- 359 0008 01A8     		add	r0, sp, #4
- 360              	.LVL44:
- 361 000a FFF7FEFF 		bl	sprintf
- 362              	.LVL45:
- 203:main.c        ****     UART_UartPutString(a); 
- 363              		.loc 1 203 0
- 364 000e 01A8     		add	r0, sp, #4
- 365 0010 FFF7FEFF 		bl	UART_UartPutString
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 11
+ 308              		.loc 1 196 0
+ 309              		@ sp needed
+ 310 0024 10BD     		pop	{r4, pc}
+ 311              	.L21:
+ 312 0026 C046     		.align	2
+ 313              	.L20:
+ 314 0028 D7A3703D 		.word	1030792151
+ 315 002c 0AF7653F 		.word	1063646986
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 12
 
 
- 366              	.LVL46:
- 204:main.c        **** }
- 367              		.loc 1 204 0
- 368 0014 0FB0     		add	sp, sp, #60
- 369              		@ sp needed
- 370 0016 00BD     		pop	{pc}
- 371              	.L23:
- 372              		.align	2
- 373              	.L22:
- 374 0018 20000000 		.word	.LC2
- 375              		.cfi_endproc
- 376              	.LFE39:
- 377              		.size	printRPM, .-printRPM
- 378              		.global	__aeabi_fcmpeq
- 379              		.global	__aeabi_fdiv
- 380              		.global	__aeabi_fmul
- 381              		.global	__aeabi_fcmplt
- 382              		.global	__aeabi_fcmpge
- 383              		.global	__aeabi_f2iz
- 384              		.section	.text.Ctr_Function,"ax",%progbits
- 385              		.align	2
- 386              		.global	Ctr_Function
- 387              		.code	16
- 388              		.thumb_func
- 389              		.type	Ctr_Function, %function
- 390              	Ctr_Function:
- 391              	.LFB40:
- 205:main.c        **** 
- 206:main.c        **** CY_ISR(Ctr_Function)
- 207:main.c        **** {
- 392              		.loc 1 207 0
- 393              		.cfi_startproc
- 394              		@ args = 0, pretend = 0, frame = 0
- 395              		@ frame_needed = 0, uses_anonymous_args = 0
- 396 0000 10B5     		push	{r4, lr}
- 397              		.cfi_def_cfa_offset 8
- 398              		.cfi_offset 4, -8
- 399              		.cfi_offset 14, -4
- 400              	.LVL47:
- 208:main.c        ****     uint32 counter ;
- 209:main.c        ****     float data = 0 ; 
- 210:main.c        ****     counter = Timer_ReadCounter();  // Read counter value
- 401              		.loc 1 210 0
- 402 0002 FFF7FEFF 		bl	Timer_ReadCounter
- 403              	.LVL48:
- 404 0006 0400     		movs	r4, r0
- 405              	.LVL49:
- 211:main.c        ****     Timer_WriteCounter(0u);         // Reset counter to zero
- 406              		.loc 1 211 0
- 407 0008 0020     		movs	r0, #0
- 408              	.LVL50:
- 409 000a FFF7FEFF 		bl	Timer_WriteCounter
- 410              	.LVL51:
- 212:main.c        ****     InputPin_ClearInterrupt();
- 411              		.loc 1 212 0
- 412 000e FFF7FEFF 		bl	InputPin_ClearInterrupt
- 413              	.LVL52:
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 12
+ 316 0030 CDCCCCCC 		.word	-858993459
+ 317 0034 CC6C4740 		.word	1078422732
+ 318              		.cfi_endproc
+ 319              	.LFE36:
+ 320              		.size	getTemperature, .-getTemperature
+ 321              		.section	.text.getHumidity,"ax",%progbits
+ 322              		.align	2
+ 323              		.global	getHumidity
+ 324              		.code	16
+ 325              		.thumb_func
+ 326              		.type	getHumidity, %function
+ 327              	getHumidity:
+ 328              	.LFB37:
+ 198:main.c        ****     return (-6.0 + 125.0 / 65536.0 * (float)(readSensor(eRHumidityCmd))); 
+ 329              		.loc 1 198 0
+ 330              		.cfi_startproc
+ 331              		@ args = 0, pretend = 0, frame = 0
+ 332              		@ frame_needed = 0, uses_anonymous_args = 0
+ 333 0000 10B5     		push	{r4, lr}
+ 334              		.cfi_def_cfa_offset 8
+ 335              		.cfi_offset 4, -8
+ 336              		.cfi_offset 14, -4
+ 199:main.c        **** }
+ 337              		.loc 1 199 0
+ 338 0002 E520     		movs	r0, #229
+ 339 0004 FFF7FEFF 		bl	readSensor
+ 340              	.LVL34:
+ 341 0008 FFF7FEFF 		bl	__aeabi_ui2f
+ 342              	.LVL35:
+ 343 000c FFF7FEFF 		bl	__aeabi_f2d
+ 344              	.LVL36:
+ 345 0010 0022     		movs	r2, #0
+ 346 0012 054B     		ldr	r3, .L23
+ 347 0014 FFF7FEFF 		bl	__aeabi_dmul
+ 348              	.LVL37:
+ 349 0018 0022     		movs	r2, #0
+ 350 001a 044B     		ldr	r3, .L23+4
+ 351 001c FFF7FEFF 		bl	__aeabi_dsub
+ 352              	.LVL38:
+ 353 0020 FFF7FEFF 		bl	__aeabi_d2f
+ 354              	.LVL39:
+ 200:main.c        **** 
+ 355              		.loc 1 200 0
+ 356              		@ sp needed
+ 357 0024 10BD     		pop	{r4, pc}
+ 358              	.L24:
+ 359 0026 C046     		.align	2
+ 360              	.L23:
+ 361 0028 00405F3F 		.word	1063206912
+ 362 002c 00001840 		.word	1075314688
+ 363              		.cfi_endproc
+ 364              	.LFE37:
+ 365              		.size	getHumidity, .-getHumidity
+ 366              		.global	__aeabi_f2uiz
+ 367              		.section	.text.runTempHumidModule,"ax",%progbits
+ 368              		.align	2
+ 369              		.global	runTempHumidModule
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 13
 
 
- 213:main.c        ****     
- 214:main.c        ****     data = counter;    // fill array  with values
- 414              		.loc 1 214 0
- 415 0012 2000     		movs	r0, r4
- 416 0014 FFF7FEFF 		bl	__aeabi_ui2f
- 417              	.LVL53:
- 215:main.c        ****     //printRPM(counter); 
- 216:main.c        ****     data = data * 0.001; 
- 418              		.loc 1 216 0
- 419 0018 FFF7FEFF 		bl	__aeabi_f2d
- 420              	.LVL54:
- 421 001c 154A     		ldr	r2, .L33
- 422 001e 164B     		ldr	r3, .L33+4
- 423 0020 FFF7FEFF 		bl	__aeabi_dmul
- 424              	.LVL55:
- 425 0024 FFF7FEFF 		bl	__aeabi_d2f
- 426              	.LVL56:
- 427 0028 041C     		adds	r4, r0, #0
- 428              	.LVL57:
- 217:main.c        ****     if(data != 0)
- 429              		.loc 1 217 0
- 430 002a 0021     		movs	r1, #0
- 431 002c FFF7FEFF 		bl	__aeabi_fcmpeq
- 432              	.LVL58:
- 433 0030 0028     		cmp	r0, #0
- 434 0032 05D1     		bne	.L25
- 218:main.c        ****         data = 1 / data; 
- 435              		.loc 1 218 0
- 436 0034 211C     		adds	r1, r4, #0
- 437 0036 FE20     		movs	r0, #254
- 438 0038 8005     		lsls	r0, r0, #22
- 439 003a FFF7FEFF 		bl	__aeabi_fdiv
- 440              	.LVL59:
- 441 003e 041C     		adds	r4, r0, #0
- 442              	.LVL60:
- 443              	.L25:
- 219:main.c        ****     //find rpm (three propellors) 
- 220:main.c        ****     data = data * 60 / 3; 
- 444              		.loc 1 220 0
- 445 0040 0E49     		ldr	r1, .L33+8
- 446 0042 201C     		adds	r0, r4, #0
- 447 0044 FFF7FEFF 		bl	__aeabi_fmul
- 448              	.LVL61:
- 449 0048 0D49     		ldr	r1, .L33+12
- 450 004a FFF7FEFF 		bl	__aeabi_fdiv
- 451              	.LVL62:
- 452 004e 041C     		adds	r4, r0, #0
- 453              	.LVL63:
- 221:main.c        ****     if (data < MAX_TURBINE_RPM && data >= 0) 
- 454              		.loc 1 221 0
- 455 0050 0C49     		ldr	r1, .L33+16
- 456 0052 FFF7FEFF 		bl	__aeabi_fcmplt
- 457              	.LVL64:
- 458 0056 0028     		cmp	r0, #0
- 459 0058 0AD0     		beq	.L24
- 460              		.loc 1 221 0 is_stmt 0 discriminator 1
- 461 005a 0021     		movs	r1, #0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 13
+ 370              		.code	16
+ 371              		.thumb_func
+ 372              		.type	runTempHumidModule, %function
+ 373              	runTempHumidModule:
+ 374              	.LFB38:
+ 202:main.c        ****         uint32 humid = 0 ; 
+ 375              		.loc 1 202 0
+ 376              		.cfi_startproc
+ 377              		@ args = 0, pretend = 0, frame = 0
+ 378              		@ frame_needed = 0, uses_anonymous_args = 0
+ 379 0000 10B5     		push	{r4, lr}
+ 380              		.cfi_def_cfa_offset 8
+ 381              		.cfi_offset 4, -8
+ 382              		.cfi_offset 14, -4
+ 383              	.LVL40:
+ 205:main.c        ****         temperature = getTemperature(); 
+ 384              		.loc 1 205 0
+ 385 0002 FFF7FEFF 		bl	getHumidity
+ 386              	.LVL41:
+ 387 0006 FFF7FEFF 		bl	__aeabi_f2uiz
+ 388              	.LVL42:
+ 389 000a 0400     		movs	r4, r0
+ 390              	.LVL43:
+ 206:main.c        ****         
+ 391              		.loc 1 206 0
+ 392 000c FFF7FEFF 		bl	getTemperature
+ 393              	.LVL44:
+ 394 0010 FFF7FEFF 		bl	__aeabi_f2uiz
+ 395              	.LVL45:
+ 208:main.c        **** }
+ 396              		.loc 1 208 0
+ 397 0014 2100     		movs	r1, r4
+ 398 0016 FFF7FEFF 		bl	UART_printFormat
+ 399              	.LVL46:
+ 209:main.c        **** 
+ 400              		.loc 1 209 0
+ 401              		@ sp needed
+ 402              	.LVL47:
+ 403 001a 10BD     		pop	{r4, pc}
+ 404              		.cfi_endproc
+ 405              	.LFE38:
+ 406              		.size	runTempHumidModule, .-runTempHumidModule
+ 407              		.section	.text.Period_function,"ax",%progbits
+ 408              		.align	2
+ 409              		.global	Period_function
+ 410              		.code	16
+ 411              		.thumb_func
+ 412              		.type	Period_function, %function
+ 413              	Period_function:
+ 414              	.LFB39:
+ 243:main.c        ****     TimerHumidityTemp_ClearInterrupt(Timer_INTR_MASK_TC);
+ 415              		.loc 1 243 0
+ 416              		.cfi_startproc
+ 417              		@ args = 0, pretend = 0, frame = 0
+ 418              		@ frame_needed = 0, uses_anonymous_args = 0
+ 419 0000 10B5     		push	{r4, lr}
+ 420              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 14
 
 
- 462 005c 201C     		adds	r0, r4, #0
- 463 005e FFF7FEFF 		bl	__aeabi_fcmpge
- 464              	.LVL65:
- 465 0062 0028     		cmp	r0, #0
- 466 0064 04D0     		beq	.L24
- 222:main.c        ****         printRPM(data); 
- 467              		.loc 1 222 0 is_stmt 1
- 468 0066 201C     		adds	r0, r4, #0
- 469 0068 FFF7FEFF 		bl	__aeabi_f2iz
- 470              	.LVL66:
- 471 006c FFF7FEFF 		bl	printRPM
- 472              	.LVL67:
- 473              	.L24:
- 223:main.c        **** }
- 474              		.loc 1 223 0
- 475              		@ sp needed
- 476              	.LVL68:
- 477 0070 10BD     		pop	{r4, pc}
- 478              	.L34:
- 479 0072 C046     		.align	2
- 480              	.L33:
- 481 0074 FCA9F1D2 		.word	-755914244
- 482 0078 4D62503F 		.word	1062232653
- 483 007c 00007042 		.word	1114636288
- 484 0080 00004040 		.word	1077936128
- 485 0084 0000A042 		.word	1117782016
- 486              		.cfi_endproc
- 487              	.LFE40:
- 488              		.size	Ctr_Function, .-Ctr_Function
- 489              		.section	.text.Period_function,"ax",%progbits
- 490              		.align	2
- 491              		.global	Period_function
- 492              		.code	16
- 493              		.thumb_func
- 494              		.type	Period_function, %function
- 495              	Period_function:
- 496              	.LFB41:
- 224:main.c        **** 
- 225:main.c        **** /** period function to reduce the communication rate of sensors */ 
- 226:main.c        **** CY_ISR(Period_function)
- 227:main.c        **** {
- 497              		.loc 1 227 0
- 498              		.cfi_startproc
- 499              		@ args = 0, pretend = 0, frame = 0
- 500              		@ frame_needed = 0, uses_anonymous_args = 0
- 501 0000 10B5     		push	{r4, lr}
- 502              		.cfi_def_cfa_offset 8
- 503              		.cfi_offset 4, -8
- 504              		.cfi_offset 14, -4
- 228:main.c        ****     TimerHumidityTemp_ClearInterrupt(Timer_INTR_MASK_TC);
- 505              		.loc 1 228 0
- 506 0002 0120     		movs	r0, #1
- 507 0004 FFF7FEFF 		bl	TimerHumidityTemp_ClearInterrupt
- 508              	.LVL69:
- 229:main.c        ****     //printRPM(1000);
- 230:main.c        ****     //runTempHumidModule(); 
- 231:main.c        **** }
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 14
+ 421              		.cfi_offset 4, -8
+ 422              		.cfi_offset 14, -4
+ 244:main.c        ****     //printRPM(1000);
+ 423              		.loc 1 244 0
+ 424 0002 0120     		movs	r0, #1
+ 425 0004 FFF7FEFF 		bl	TimerHumidityTemp_ClearInterrupt
+ 426              	.LVL48:
+ 247:main.c        **** 
+ 427              		.loc 1 247 0
+ 428              		@ sp needed
+ 429 0008 10BD     		pop	{r4, pc}
+ 430              		.cfi_endproc
+ 431              	.LFE39:
+ 432              		.size	Period_function, .-Period_function
+ 433 000a C046     		.section	.text.main,"ax",%progbits
+ 434              		.align	2
+ 435              		.global	main
+ 436              		.code	16
+ 437              		.thumb_func
+ 438              		.type	main, %function
+ 439              	main:
+ 440              	.LFB41:
+ 286:main.c        **** 
+ 287:main.c        **** 
+ 288:main.c        **** /*******************************************************************************
+ 289:main.c        **** * Function Name: main
+ 290:main.c        **** ********************************************************************************
+ 291:main.c        **** * 
+ 292:main.c        **** * Summary:
+ 293:main.c        **** *  This function:
+ 294:main.c        **** *   1. Turns off the RGB LED.
+ 295:main.c        **** *   2. Starts the I2C Master Component.
+ 296:main.c        **** *   3. Enables global interrupts.
+ 297:main.c        **** *   4. Sends command and reads status packets from the Slave every 500mS.
+ 298:main.c        **** *
+ 299:main.c        **** *******************************************************************************/
+ 300:main.c        **** int main()
+ 301:main.c        **** {
+ 441              		.loc 1 301 0
+ 442              		.cfi_startproc
+ 443              		@ args = 0, pretend = 0, frame = 256
+ 444              		@ frame_needed = 0, uses_anonymous_args = 0
+ 445 0000 00B5     		push	{lr}
+ 446              		.cfi_def_cfa_offset 4
+ 447              		.cfi_offset 14, -4
+ 448 0002 C1B0     		sub	sp, sp, #260
+ 449              		.cfi_def_cfa_offset 264
+ 302:main.c        ****     CyGlobalIntEnable;
+ 450              		.loc 1 302 0
+ 451              		.syntax divided
+ 452              	@ 302 "main.c" 1
+ 453 0004 62B6     		CPSIE   i
+ 454              	@ 0 "" 2
+ 455              	.LVL49:
+ 303:main.c        ****     
+ 304:main.c        ****     float32 res = 0 ; 
+ 305:main.c        ****     char  uartLine[250];
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 15
 
 
- 509              		.loc 1 231 0
- 510              		@ sp needed
- 511 0008 10BD     		pop	{r4, pc}
- 512              		.cfi_endproc
- 513              	.LFE41:
- 514              		.size	Period_function, .-Period_function
- 515 000a C046     		.section	.text.main,"ax",%progbits
- 516              		.align	2
- 517              		.global	main
- 518              		.code	16
- 519              		.thumb_func
- 520              		.type	main, %function
- 521              	main:
- 522              	.LFB42:
- 232:main.c        **** 
- 233:main.c        **** 
- 234:main.c        **** 
- 235:main.c        **** 
- 236:main.c        **** /*******************************************************************************
- 237:main.c        **** * Function Name: main
- 238:main.c        **** ********************************************************************************
- 239:main.c        **** * 
- 240:main.c        **** * Summary:
- 241:main.c        **** *  This function:
- 242:main.c        **** *   1. Turns off the RGB LED.
- 243:main.c        **** *   2. Starts the I2C Master Component.
- 244:main.c        **** *   3. Enables global interrupts.
- 245:main.c        **** *   4. Sends command and reads status packets from the Slave every 500mS.
- 246:main.c        **** *
- 247:main.c        **** *******************************************************************************/
- 248:main.c        **** int main()
- 249:main.c        **** {
- 523              		.loc 1 249 0
- 524              		.cfi_startproc
- 525              		@ Volatile: function does not return.
- 526              		@ args = 0, pretend = 0, frame = 0
- 527              		@ frame_needed = 0, uses_anonymous_args = 0
- 528 0000 10B5     		push	{r4, lr}
- 529              		.cfi_def_cfa_offset 8
- 530              		.cfi_offset 4, -8
- 531              		.cfi_offset 14, -4
- 250:main.c        ****     CyGlobalIntEnable;
- 532              		.loc 1 250 0
- 533              		.syntax divided
- 534              	@ 250 "main.c" 1
- 535 0002 62B6     		CPSIE   i
- 536              	@ 0 "" 2
- 251:main.c        ****     
- 252:main.c        ****     /* Start the I2C Master */
- 253:main.c        ****     I2CM_Start();
- 537              		.loc 1 253 0
- 538              		.thumb
- 539              		.syntax unified
- 540 0004 FFF7FEFF 		bl	I2CM_Start
- 541              	.LVL70:
- 254:main.c        ****     UART_Start(); 
- 542              		.loc 1 254 0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 15
+ 306:main.c        ****     
+ 307:main.c        ****     /* Start the I2C Master */
+ 308:main.c        ****     I2CM_Start();
+ 456              		.loc 1 308 0
+ 457              		.thumb
+ 458              		.syntax unified
+ 459 0006 FFF7FEFF 		bl	I2CM_Start
+ 460              	.LVL50:
+ 309:main.c        ****     UART_Start(); 
+ 461              		.loc 1 309 0
+ 462 000a FFF7FEFF 		bl	UART_Start
+ 463              	.LVL51:
+ 310:main.c        ****     Timer_Start();
+ 464              		.loc 1 310 0
+ 465 000e FFF7FEFF 		bl	Timer_Start
+ 466              	.LVL52:
+ 311:main.c        ****     //TimerHumidityTemp_Start(); 
+ 312:main.c        ****     
+ 313:main.c        ****      /* Init and start sequencing SAR ADC */
+ 314:main.c        ****     ADC_SAR_SEQ_Start();
+ 467              		.loc 1 314 0
+ 468 0012 FFF7FEFF 		bl	ADC_SAR_SEQ_Start
+ 469              	.LVL53:
+ 315:main.c        ****     ADC_SAR_SEQ_StartConvert();
+ 470              		.loc 1 315 0
+ 471 0016 FFF7FEFF 		bl	ADC_SAR_SEQ_StartConvert
+ 472              	.LVL54:
+ 316:main.c        ****     /* Enable interrupt and set interrupt handler to local routine */
+ 317:main.c        ****     ADC_SAR_SEQ_IRQ_StartEx(ADC_SAR_SEQ_ISR_LOC);
+ 473              		.loc 1 317 0
+ 474 001a 1248     		ldr	r0, .L30
+ 475 001c FFF7FEFF 		bl	ADC_SAR_SEQ_IRQ_StartEx
+ 476              	.LVL55:
+ 477              	.L28:
+ 318:main.c        ****     
+ 319:main.c        ****     //InputPinIsr_StartEx(Ctr_Function);
+ 320:main.c        ****     //HumidityTempIsr_StartEx(Period_function); 
+ 321:main.c        ****     
+ 322:main.c        ****     for(;;)
+ 323:main.c        ****     {      
+ 324:main.c        ****         runTempHumidModule(); 
+ 478              		.loc 1 324 0
+ 479 0020 FFF7FEFF 		bl	runTempHumidModule
+ 480              	.LVL56:
+ 325:main.c        ****         
+ 326:main.c        ****         CyDelay(CMD_TO_CMD_DELAY);       
+ 481              		.loc 1 326 0
+ 482 0024 FA20     		movs	r0, #250
+ 483 0026 4000     		lsls	r0, r0, #1
+ 484 0028 FFF7FEFF 		bl	CyDelay
+ 485              	.LVL57:
+ 327:main.c        ****          
+ 328:main.c        ****         
+ 329:main.c        ****         /* When conversion of sequencing channels has completed */
+ 330:main.c        ****         if((dataReady & ADC_SAR_SEQ_EOS_MASK) != 0u)
+ 486              		.loc 1 330 0
+ 487 002c 0E4B     		ldr	r3, .L30+4
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 16
 
 
- 543 0008 FFF7FEFF 		bl	UART_Start
- 544              	.LVL71:
- 255:main.c        ****     Timer_Start();
- 545              		.loc 1 255 0
- 546 000c FFF7FEFF 		bl	Timer_Start
- 547              	.LVL72:
- 256:main.c        ****     TimerHumidityTemp_Start(); 
- 548              		.loc 1 256 0
- 549 0010 FFF7FEFF 		bl	TimerHumidityTemp_Start
- 550              	.LVL73:
- 257:main.c        ****     
- 258:main.c        ****     InputPinIsr_StartEx(Ctr_Function);
- 551              		.loc 1 258 0
- 552 0014 0448     		ldr	r0, .L38
- 553 0016 FFF7FEFF 		bl	InputPinIsr_StartEx
- 554              	.LVL74:
- 555              	.L37:
- 259:main.c        ****     //HumidityTempIsr_StartEx(Period_function); 
- 260:main.c        ****     
- 261:main.c        ****     for(;;)
- 262:main.c        ****     {      
- 263:main.c        ****         runTempHumidModule(); 
- 556              		.loc 1 263 0 discriminator 1
- 557 001a FFF7FEFF 		bl	runTempHumidModule
- 558              	.LVL75:
- 264:main.c        ****         
- 265:main.c        ****         CyDelay(CMD_TO_CMD_DELAY); 
- 559              		.loc 1 265 0 discriminator 1
- 560 001e FA20     		movs	r0, #250
- 561 0020 4000     		lsls	r0, r0, #1
- 562 0022 FFF7FEFF 		bl	CyDelay
- 563              	.LVL76:
- 564 0026 F8E7     		b	.L37
- 565              	.L39:
- 566              		.align	2
- 567              	.L38:
- 568 0028 00000000 		.word	Ctr_Function
- 569              		.cfi_endproc
- 570              	.LFE42:
- 571              		.size	main, .-main
- 572              		.section	.rodata.str1.4,"aMS",%progbits,1
- 573              		.align	2
- 574              	.LC0:
- 575 0000 54656D70 		.ascii	"Temperature: %d, Humidity: %d\012\000"
- 575      65726174 
- 575      7572653A 
- 575      2025642C 
- 575      2048756D 
- 576 001f 00       		.space	1
- 577              	.LC2:
- 578 0020 72706D3A 		.ascii	"rpm: %d\012\000"
- 578      2025640A 
- 578      00
- 579              		.text
- 580              	.Letext0:
- 581              		.file 2 "Generated_Source\\PSoC4/cytypes.h"
- 582              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 16
+ 488 002e 1B68     		ldr	r3, [r3]
+ 489 0030 DB07     		lsls	r3, r3, #31
+ 490 0032 F5D5     		bpl	.L28
+ 331:main.c        ****         {
+ 332:main.c        ****             /* Get voltage, measured by ADC */
+ 333:main.c        ****             dataReady &= ~ADC_SAR_SEQ_EOS_MASK;
+ 491              		.loc 1 333 0
+ 492 0034 0C4A     		ldr	r2, .L30+4
+ 493 0036 1368     		ldr	r3, [r2]
+ 494 0038 0121     		movs	r1, #1
+ 495 003a 8B43     		bics	r3, r1
+ 496 003c 1360     		str	r3, [r2]
+ 334:main.c        ****             //res = ADC_SAR_SEQ_CountsTo_mVolts(CH0_N, result[CH0_N]);
+ 335:main.c        ****             res = ADC_SAR_SEQ_CountsTo_Volts(CH0_N, result[CH0_N]); 
+ 497              		.loc 1 335 0
+ 498 003e 0B4B     		ldr	r3, .L30+8
+ 499 0040 1988     		ldrh	r1, [r3]
+ 500 0042 09B2     		sxth	r1, r1
+ 501 0044 0020     		movs	r0, #0
+ 502 0046 FFF7FEFF 		bl	ADC_SAR_SEQ_CountsTo_Volts
+ 503              	.LVL58:
+ 336:main.c        ****               
+ 337:main.c        ****      
+ 338:main.c        ****             
+ 339:main.c        ****             /* Print voltage value to UART */
+ 340:main.c        ****             sprintf(
+ 504              		.loc 1 340 0
+ 505 004a FFF7FEFF 		bl	__aeabi_f2d
+ 506              	.LVL59:
+ 507 004e 0200     		movs	r2, r0
+ 508 0050 0B00     		movs	r3, r1
+ 509 0052 0749     		ldr	r1, .L30+12
+ 510 0054 01A8     		add	r0, sp, #4
+ 511 0056 FFF7FEFF 		bl	sprintf
+ 512              	.LVL60:
+ 341:main.c        ****                 uartLine, "ADC measured voltage: %f V\n",
+ 342:main.c        ****                 (float32)res
+ 343:main.c        ****                 );
+ 344:main.c        ****             
+ 345:main.c        ****             UART_UartPutString(uartLine);
+ 513              		.loc 1 345 0
+ 514 005a 01A8     		add	r0, sp, #4
+ 515 005c FFF7FEFF 		bl	UART_UartPutString
+ 516              	.LVL61:
+ 517 0060 DEE7     		b	.L28
+ 518              	.L31:
+ 519 0062 C046     		.align	2
+ 520              	.L30:
+ 521 0064 00000000 		.word	ADC_SAR_SEQ_ISR_LOC
+ 522 0068 00000000 		.word	.LANCHOR0
+ 523 006c 00000000 		.word	result
+ 524 0070 20000000 		.word	.LC7
+ 525              		.cfi_endproc
+ 526              	.LFE41:
+ 527              		.size	main, .-main
+ 528              		.global	timer_delay
+ 529              		.comm	result,2,4
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 17
 
 
- 583              		.file 4 "Generated_Source\\PSoC4/UART_SPI_UART.h"
- 584              		.file 5 "Generated_Source\\PSoC4/I2CM_I2C.h"
- 585              		.file 6 "Generated_Source\\PSoC4/Timer.h"
- 586              		.file 7 "Generated_Source\\PSoC4/InputPin.h"
- 587              		.file 8 "Generated_Source\\PSoC4/TimerHumidityTemp.h"
- 588              		.file 9 "Generated_Source\\PSoC4/I2CM.h"
- 589              		.file 10 "Generated_Source\\PSoC4/UART.h"
- 590              		.file 11 "Generated_Source\\PSoC4/InputPinIsr.h"
- 591              		.file 12 "Generated_Source\\PSoC4/CyLib.h"
- 592              		.section	.debug_info,"",%progbits
- 593              	.Ldebug_info0:
- 594 0000 38050000 		.4byte	0x538
- 595 0004 0400     		.2byte	0x4
- 596 0006 00000000 		.4byte	.Ldebug_abbrev0
- 597 000a 04       		.byte	0x4
- 598 000b 01       		.uleb128 0x1
- 599 000c 46020000 		.4byte	.LASF52
- 600 0010 0C       		.byte	0xc
- 601 0011 EB020000 		.4byte	.LASF53
- 602 0015 C8010000 		.4byte	.LASF54
- 603 0019 00000000 		.4byte	.Ldebug_ranges0+0
- 604 001d 00000000 		.4byte	0
- 605 0021 00000000 		.4byte	.Ldebug_line0
- 606 0025 02       		.uleb128 0x2
- 607 0026 01       		.byte	0x1
- 608 0027 06       		.byte	0x6
- 609 0028 5B030000 		.4byte	.LASF0
- 610 002c 02       		.uleb128 0x2
- 611 002d 01       		.byte	0x1
- 612 002e 08       		.byte	0x8
- 613 002f FE000000 		.4byte	.LASF1
- 614 0033 02       		.uleb128 0x2
- 615 0034 02       		.byte	0x2
- 616 0035 05       		.byte	0x5
- 617 0036 11030000 		.4byte	.LASF2
- 618 003a 02       		.uleb128 0x2
- 619 003b 02       		.byte	0x2
- 620 003c 07       		.byte	0x7
- 621 003d 3C010000 		.4byte	.LASF3
- 622 0041 02       		.uleb128 0x2
- 623 0042 04       		.byte	0x4
- 624 0043 05       		.byte	0x5
- 625 0044 46030000 		.4byte	.LASF4
- 626 0048 02       		.uleb128 0x2
- 627 0049 04       		.byte	0x4
- 628 004a 07       		.byte	0x7
- 629 004b 25010000 		.4byte	.LASF5
- 630 004f 02       		.uleb128 0x2
- 631 0050 08       		.byte	0x8
- 632 0051 05       		.byte	0x5
- 633 0052 DD020000 		.4byte	.LASF6
- 634 0056 02       		.uleb128 0x2
- 635 0057 08       		.byte	0x8
- 636 0058 07       		.byte	0x7
- 637 0059 1C020000 		.4byte	.LASF7
- 638 005d 03       		.uleb128 0x3
- 639 005e 04       		.byte	0x4
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 17
+ 530              		.global	dataReady
+ 531              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 532              		.align	2
+ 533              	.LC2:
+ 534 0000 54656D70 		.ascii	"Temperature: %d, Humidity: %d\012\000"
+ 534      65726174 
+ 534      7572653A 
+ 534      2025642C 
+ 534      2048756D 
+ 535 001f 00       		.space	1
+ 536              	.LC7:
+ 537 0020 41444320 		.ascii	"ADC measured voltage: %f V\012\000"
+ 537      6D656173 
+ 537      75726564 
+ 537      20766F6C 
+ 537      74616765 
+ 538              		.bss
+ 539              		.align	2
+ 540              		.set	.LANCHOR0,. + 0
+ 541              		.type	dataReady, %object
+ 542              		.size	dataReady, 4
+ 543              	dataReady:
+ 544 0000 00000000 		.space	4
+ 545              		.type	timer_delay, %object
+ 546              		.size	timer_delay, 4
+ 547              	timer_delay:
+ 548 0004 00000000 		.space	4
+ 549              		.text
+ 550              	.Letext0:
+ 551              		.file 2 "Generated_Source\\PSoC4/cytypes.h"
+ 552              		.file 3 "Generated_Source\\PSoC4/ADC_SAR_SEQ.h"
+ 553              		.file 4 "c:\\program files (x86)\\cypress\\psoc creator\\4.2\\psoc creator\\import\\gnu\\arm\\5.4.
+ 554              		.file 5 "Generated_Source\\PSoC4/UART_SPI_UART.h"
+ 555              		.file 6 "Generated_Source\\PSoC4/I2CM_I2C.h"
+ 556              		.file 7 "Generated_Source\\PSoC4/TimerHumidityTemp.h"
+ 557              		.file 8 "Generated_Source\\PSoC4/I2CM.h"
+ 558              		.file 9 "Generated_Source\\PSoC4/UART.h"
+ 559              		.file 10 "Generated_Source\\PSoC4/Timer.h"
+ 560              		.file 11 "Generated_Source\\PSoC4/ADC_SAR_SEQ_IRQ.h"
+ 561              		.file 12 "Generated_Source\\PSoC4/CyLib.h"
+ 562              		.section	.debug_info,"",%progbits
+ 563              	.Ldebug_info0:
+ 564 0000 A7050000 		.4byte	0x5a7
+ 565 0004 0400     		.2byte	0x4
+ 566 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 567 000a 04       		.byte	0x4
+ 568 000b 01       		.uleb128 0x1
+ 569 000c BE000000 		.4byte	.LASF57
+ 570 0010 0C       		.byte	0xc
+ 571 0011 30030000 		.4byte	.LASF58
+ 572 0015 3F000000 		.4byte	.LASF59
+ 573 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 574 001d 00000000 		.4byte	0
+ 575 0021 00000000 		.4byte	.Ldebug_line0
+ 576 0025 02       		.uleb128 0x2
+ 577 0026 01       		.byte	0x1
+ 578 0027 06       		.byte	0x6
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 18
 
 
- 640 005f 05       		.byte	0x5
- 641 0060 696E7400 		.ascii	"int\000"
- 642 0064 02       		.uleb128 0x2
- 643 0065 04       		.byte	0x4
- 644 0066 07       		.byte	0x7
- 645 0067 04020000 		.4byte	.LASF8
- 646 006b 04       		.uleb128 0x4
- 647 006c 22030000 		.4byte	.LASF9
- 648 0070 02       		.byte	0x2
- 649 0071 E401     		.2byte	0x1e4
- 650 0073 2C000000 		.4byte	0x2c
- 651 0077 04       		.uleb128 0x4
- 652 0078 A2010000 		.4byte	.LASF10
- 653 007c 02       		.byte	0x2
- 654 007d E501     		.2byte	0x1e5
- 655 007f 3A000000 		.4byte	0x3a
- 656 0083 04       		.uleb128 0x4
- 657 0084 C1010000 		.4byte	.LASF11
- 658 0088 02       		.byte	0x2
- 659 0089 E601     		.2byte	0x1e6
- 660 008b 48000000 		.4byte	0x48
- 661 008f 02       		.uleb128 0x2
- 662 0090 04       		.byte	0x4
- 663 0091 04       		.byte	0x4
- 664 0092 57000000 		.4byte	.LASF12
- 665 0096 02       		.uleb128 0x2
- 666 0097 08       		.byte	0x8
- 667 0098 04       		.byte	0x4
- 668 0099 96010000 		.4byte	.LASF13
- 669 009d 02       		.uleb128 0x2
- 670 009e 01       		.byte	0x1
- 671 009f 08       		.byte	0x8
- 672 00a0 F2020000 		.4byte	.LASF14
- 673 00a4 02       		.uleb128 0x2
- 674 00a5 08       		.byte	0x8
- 675 00a6 04       		.byte	0x4
- 676 00a7 4F030000 		.4byte	.LASF15
- 677 00ab 02       		.uleb128 0x2
- 678 00ac 04       		.byte	0x4
- 679 00ad 07       		.byte	0x7
- 680 00ae D4020000 		.4byte	.LASF16
- 681 00b2 05       		.uleb128 0x5
- 682 00b3 D0000000 		.4byte	.LASF24
- 683 00b7 01       		.byte	0x1
- 684 00b8 52       		.byte	0x52
- 685 00b9 00000000 		.4byte	.LFB33
- 686 00bd 20000000 		.4byte	.LFE33-.LFB33
- 687 00c1 01       		.uleb128 0x1
- 688 00c2 9C       		.byte	0x9c
- 689 00c3 2D010000 		.4byte	0x12d
- 690 00c7 06       		.uleb128 0x6
- 691 00c8 37010000 		.4byte	.LASF17
- 692 00cc 01       		.byte	0x1
- 693 00cd 52       		.byte	0x52
- 694 00ce 5D000000 		.4byte	0x5d
- 695 00d2 00000000 		.4byte	.LLST0
- 696 00d6 06       		.uleb128 0x6
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 18
+ 579 0028 38020000 		.4byte	.LASF0
+ 580 002c 02       		.uleb128 0x2
+ 581 002d 01       		.byte	0x1
+ 582 002e 08       		.byte	0x8
+ 583 002f 22020000 		.4byte	.LASF1
+ 584 0033 02       		.uleb128 0x2
+ 585 0034 02       		.byte	0x2
+ 586 0035 05       		.byte	0x5
+ 587 0036 2C000000 		.4byte	.LASF2
+ 588 003a 02       		.uleb128 0x2
+ 589 003b 02       		.byte	0x2
+ 590 003c 07       		.byte	0x7
+ 591 003d AE020000 		.4byte	.LASF3
+ 592 0041 02       		.uleb128 0x2
+ 593 0042 04       		.byte	0x4
+ 594 0043 05       		.byte	0x5
+ 595 0044 CC010000 		.4byte	.LASF4
+ 596 0048 02       		.uleb128 0x2
+ 597 0049 04       		.byte	0x4
+ 598 004a 07       		.byte	0x7
+ 599 004b 37030000 		.4byte	.LASF5
+ 600 004f 02       		.uleb128 0x2
+ 601 0050 08       		.byte	0x8
+ 602 0051 05       		.byte	0x5
+ 603 0052 A7010000 		.4byte	.LASF6
+ 604 0056 02       		.uleb128 0x2
+ 605 0057 08       		.byte	0x8
+ 606 0058 07       		.byte	0x7
+ 607 0059 44020000 		.4byte	.LASF7
+ 608 005d 03       		.uleb128 0x3
+ 609 005e 04       		.byte	0x4
+ 610 005f 05       		.byte	0x5
+ 611 0060 696E7400 		.ascii	"int\000"
+ 612 0064 02       		.uleb128 0x2
+ 613 0065 04       		.byte	0x4
+ 614 0066 07       		.byte	0x7
+ 615 0067 81020000 		.4byte	.LASF8
+ 616 006b 04       		.uleb128 0x4
+ 617 006c 68010000 		.4byte	.LASF9
+ 618 0070 02       		.byte	0x2
+ 619 0071 E401     		.2byte	0x1e4
+ 620 0073 2C000000 		.4byte	0x2c
+ 621 0077 04       		.uleb128 0x4
+ 622 0078 03030000 		.4byte	.LASF10
+ 623 007c 02       		.byte	0x2
+ 624 007d E501     		.2byte	0x1e5
+ 625 007f 3A000000 		.4byte	0x3a
+ 626 0083 04       		.uleb128 0x4
+ 627 0084 29030000 		.4byte	.LASF11
+ 628 0088 02       		.byte	0x2
+ 629 0089 E601     		.2byte	0x1e6
+ 630 008b 48000000 		.4byte	0x48
+ 631 008f 04       		.uleb128 0x4
+ 632 0090 55010000 		.4byte	.LASF12
+ 633 0094 02       		.byte	0x2
+ 634 0095 E801     		.2byte	0x1e8
+ 635 0097 33000000 		.4byte	0x33
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 19
 
 
- 697 00d7 84000000 		.4byte	.LASF18
- 698 00db 01       		.byte	0x1
- 699 00dc 52       		.byte	0x52
- 700 00dd 5D000000 		.4byte	0x5d
- 701 00e1 2C000000 		.4byte	.LLST1
- 702 00e5 07       		.uleb128 0x7
- 703 00e6 6100     		.ascii	"a\000"
- 704 00e8 01       		.byte	0x1
- 705 00e9 53       		.byte	0x53
- 706 00ea 2D010000 		.4byte	0x12d
- 707 00ee 02       		.uleb128 0x2
- 708 00ef 91       		.byte	0x91
- 709 00f0 44       		.sleb128 -60
- 710 00f1 08       		.uleb128 0x8
- 711 00f2 10000000 		.4byte	.LVL3
- 712 00f6 75040000 		.4byte	0x475
- 713 00fa 1C010000 		.4byte	0x11c
- 714 00fe 09       		.uleb128 0x9
- 715 00ff 01       		.uleb128 0x1
- 716 0100 50       		.byte	0x50
- 717 0101 02       		.uleb128 0x2
- 718 0102 91       		.byte	0x91
- 719 0103 44       		.sleb128 -60
- 720 0104 09       		.uleb128 0x9
- 721 0105 01       		.uleb128 0x1
- 722 0106 51       		.byte	0x51
- 723 0107 05       		.uleb128 0x5
- 724 0108 03       		.byte	0x3
- 725 0109 00000000 		.4byte	.LC0
- 726 010d 09       		.uleb128 0x9
- 727 010e 01       		.uleb128 0x1
- 728 010f 52       		.byte	0x52
- 729 0110 03       		.uleb128 0x3
- 730 0111 F3       		.byte	0xf3
- 731 0112 01       		.uleb128 0x1
- 732 0113 50       		.byte	0x50
- 733 0114 09       		.uleb128 0x9
- 734 0115 01       		.uleb128 0x1
- 735 0116 53       		.byte	0x53
- 736 0117 03       		.uleb128 0x3
- 737 0118 F3       		.byte	0xf3
- 738 0119 01       		.uleb128 0x1
- 739 011a 51       		.byte	0x51
- 740 011b 00       		.byte	0
- 741 011c 0A       		.uleb128 0xa
- 742 011d 16000000 		.4byte	.LVL4
- 743 0121 80040000 		.4byte	0x480
- 744 0125 09       		.uleb128 0x9
- 745 0126 01       		.uleb128 0x1
- 746 0127 50       		.byte	0x50
- 747 0128 02       		.uleb128 0x2
- 748 0129 91       		.byte	0x91
- 749 012a 44       		.sleb128 -60
- 750 012b 00       		.byte	0
- 751 012c 00       		.byte	0
- 752 012d 0B       		.uleb128 0xb
- 753 012e 9D000000 		.4byte	0x9d
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 19
+ 636 009b 04       		.uleb128 0x4
+ 637 009c 1F000000 		.4byte	.LASF13
+ 638 00a0 02       		.byte	0x2
+ 639 00a1 EA01     		.2byte	0x1ea
+ 640 00a3 A7000000 		.4byte	0xa7
+ 641 00a7 02       		.uleb128 0x2
+ 642 00a8 04       		.byte	0x4
+ 643 00a9 04       		.byte	0x4
+ 644 00aa A1010000 		.4byte	.LASF14
+ 645 00ae 02       		.uleb128 0x2
+ 646 00af 08       		.byte	0x8
+ 647 00b0 04       		.byte	0x4
+ 648 00b1 49030000 		.4byte	.LASF15
+ 649 00b5 02       		.uleb128 0x2
+ 650 00b6 01       		.byte	0x1
+ 651 00b7 08       		.byte	0x8
+ 652 00b8 C8020000 		.4byte	.LASF16
+ 653 00bc 04       		.uleb128 0x4
+ 654 00bd A8020000 		.4byte	.LASF17
+ 655 00c1 02       		.byte	0x2
+ 656 00c2 9002     		.2byte	0x290
+ 657 00c4 C8000000 		.4byte	0xc8
+ 658 00c8 05       		.uleb128 0x5
+ 659 00c9 83000000 		.4byte	0x83
+ 660 00cd 02       		.uleb128 0x2
+ 661 00ce 08       		.byte	0x8
+ 662 00cf 04       		.byte	0x4
+ 663 00d0 16020000 		.4byte	.LASF18
+ 664 00d4 02       		.uleb128 0x2
+ 665 00d5 04       		.byte	0x4
+ 666 00d6 07       		.byte	0x7
+ 667 00d7 36000000 		.4byte	.LASF19
+ 668 00db 06       		.uleb128 0x6
+ 669 00dc 6F000000 		.4byte	.LASF22
+ 670 00e0 01       		.byte	0x1
+ 671 00e1 FA       		.byte	0xfa
+ 672 00e2 00000000 		.4byte	.LFB40
+ 673 00e6 48000000 		.4byte	.LFE40-.LFB40
+ 674 00ea 01       		.uleb128 0x1
+ 675 00eb 9C       		.byte	0x9c
+ 676 00ec 1E010000 		.4byte	0x11e
+ 677 00f0 07       		.uleb128 0x7
+ 678 00f1 E0010000 		.4byte	.LASF20
+ 679 00f5 01       		.byte	0x1
+ 680 00f6 FC       		.byte	0xfc
+ 681 00f7 83000000 		.4byte	0x83
+ 682 00fb 00000000 		.4byte	.LLST0
+ 683 00ff 07       		.uleb128 0x7
+ 684 0100 5B010000 		.4byte	.LASF21
+ 685 0104 01       		.byte	0x1
+ 686 0105 FD       		.byte	0xfd
+ 687 0106 83000000 		.4byte	0x83
+ 688 010a 1F000000 		.4byte	.LLST1
+ 689 010e 08       		.uleb128 0x8
+ 690 010f 18000000 		.4byte	.LVL2
+ 691 0113 E7040000 		.4byte	0x4e7
+ 692 0117 09       		.uleb128 0x9
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 20
 
 
- 754 0132 3D010000 		.4byte	0x13d
- 755 0136 0C       		.uleb128 0xc
- 756 0137 AB000000 		.4byte	0xab
- 757 013b 31       		.byte	0x31
- 758 013c 00       		.byte	0
- 759 013d 0D       		.uleb128 0xd
- 760 013e 12010000 		.4byte	.LASF21
- 761 0142 01       		.byte	0x1
- 762 0143 57       		.byte	0x57
- 763 0144 83000000 		.4byte	0x83
- 764 0148 00000000 		.4byte	.LFB34
- 765 014c 46000000 		.4byte	.LFE34-.LFB34
- 766 0150 01       		.uleb128 0x1
- 767 0151 9C       		.byte	0x9c
- 768 0152 CB010000 		.4byte	0x1cb
- 769 0156 0E       		.uleb128 0xe
- 770 0157 636D6400 		.ascii	"cmd\000"
- 771 015b 01       		.byte	0x1
- 772 015c 57       		.byte	0x57
- 773 015d 6B000000 		.4byte	0x6b
- 774 0161 58000000 		.4byte	.LLST2
- 775 0165 0F       		.uleb128 0xf
- 776 0166 1B030000 		.4byte	.LASF19
- 777 016a 01       		.byte	0x1
- 778 016b 59       		.byte	0x59
- 779 016c CB010000 		.4byte	0x1cb
- 780 0170 02       		.uleb128 0x2
- 781 0171 91       		.byte	0x91
- 782 0172 74       		.sleb128 -12
- 783 0173 10       		.uleb128 0x10
- 784 0174 A1000000 		.4byte	.LASF20
- 785 0178 01       		.byte	0x1
- 786 0179 5A       		.byte	0x5a
- 787 017a 83000000 		.4byte	0x83
- 788 017e 79000000 		.4byte	.LLST3
- 789 0182 11       		.uleb128 0x11
- 790 0183 0C000000 		.4byte	.LVL7
- 791 0187 8C040000 		.4byte	0x48c
- 792 018b 08       		.uleb128 0x8
- 793 018c 18000000 		.4byte	.LVL8
- 794 0190 98040000 		.4byte	0x498
- 795 0194 AF010000 		.4byte	0x1af
- 796 0198 09       		.uleb128 0x9
- 797 0199 01       		.uleb128 0x1
- 798 019a 50       		.byte	0x50
- 799 019b 02       		.uleb128 0x2
- 800 019c 08       		.byte	0x8
- 801 019d 40       		.byte	0x40
- 802 019e 09       		.uleb128 0x9
- 803 019f 01       		.uleb128 0x1
- 804 01a0 51       		.byte	0x51
- 805 01a1 02       		.uleb128 0x2
- 806 01a2 74       		.byte	0x74
- 807 01a3 00       		.sleb128 0
- 808 01a4 09       		.uleb128 0x9
- 809 01a5 01       		.uleb128 0x1
- 810 01a6 52       		.byte	0x52
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 20
+ 693 0118 01       		.uleb128 0x1
+ 694 0119 50       		.byte	0x50
+ 695 011a 01       		.uleb128 0x1
+ 696 011b 30       		.byte	0x30
+ 697 011c 00       		.byte	0
+ 698 011d 00       		.byte	0
+ 699 011e 06       		.uleb128 0x6
+ 700 011f 6E010000 		.4byte	.LASF23
+ 701 0123 01       		.byte	0x1
+ 702 0124 62       		.byte	0x62
+ 703 0125 00000000 		.4byte	.LFB33
+ 704 0129 20000000 		.4byte	.LFE33-.LFB33
+ 705 012d 01       		.uleb128 0x1
+ 706 012e 9C       		.byte	0x9c
+ 707 012f 99010000 		.4byte	0x199
+ 708 0133 0A       		.uleb128 0xa
+ 709 0134 27000000 		.4byte	.LASF24
+ 710 0138 01       		.byte	0x1
+ 711 0139 62       		.byte	0x62
+ 712 013a 5D000000 		.4byte	0x5d
+ 713 013e 32000000 		.4byte	.LLST2
+ 714 0142 0A       		.uleb128 0xa
+ 715 0143 CD020000 		.4byte	.LASF25
+ 716 0147 01       		.byte	0x1
+ 717 0148 62       		.byte	0x62
+ 718 0149 5D000000 		.4byte	0x5d
+ 719 014d 5E000000 		.4byte	.LLST3
+ 720 0151 0B       		.uleb128 0xb
+ 721 0152 6100     		.ascii	"a\000"
+ 722 0154 01       		.byte	0x1
+ 723 0155 63       		.byte	0x63
+ 724 0156 99010000 		.4byte	0x199
+ 725 015a 02       		.uleb128 0x2
+ 726 015b 91       		.byte	0x91
+ 727 015c 44       		.sleb128 -60
+ 728 015d 0C       		.uleb128 0xc
+ 729 015e 10000000 		.4byte	.LVL8
+ 730 0162 F2040000 		.4byte	0x4f2
+ 731 0166 88010000 		.4byte	0x188
+ 732 016a 09       		.uleb128 0x9
+ 733 016b 01       		.uleb128 0x1
+ 734 016c 50       		.byte	0x50
+ 735 016d 02       		.uleb128 0x2
+ 736 016e 91       		.byte	0x91
+ 737 016f 44       		.sleb128 -60
+ 738 0170 09       		.uleb128 0x9
+ 739 0171 01       		.uleb128 0x1
+ 740 0172 51       		.byte	0x51
+ 741 0173 05       		.uleb128 0x5
+ 742 0174 03       		.byte	0x3
+ 743 0175 00000000 		.4byte	.LC2
+ 744 0179 09       		.uleb128 0x9
+ 745 017a 01       		.uleb128 0x1
+ 746 017b 52       		.byte	0x52
+ 747 017c 03       		.uleb128 0x3
+ 748 017d F3       		.byte	0xf3
+ 749 017e 01       		.uleb128 0x1
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 21
 
 
- 811 01a7 01       		.uleb128 0x1
- 812 01a8 31       		.byte	0x31
- 813 01a9 09       		.uleb128 0x9
- 814 01aa 01       		.uleb128 0x1
- 815 01ab 53       		.byte	0x53
- 816 01ac 01       		.uleb128 0x1
- 817 01ad 30       		.byte	0x30
- 818 01ae 00       		.byte	0
- 819 01af 11       		.uleb128 0x11
- 820 01b0 20000000 		.4byte	.LVL9
- 821 01b4 A4040000 		.4byte	0x4a4
- 822 01b8 11       		.uleb128 0x11
- 823 01b9 28000000 		.4byte	.LVL10
- 824 01bd A4040000 		.4byte	0x4a4
- 825 01c1 11       		.uleb128 0x11
- 826 01c2 30000000 		.4byte	.LVL11
- 827 01c6 B0040000 		.4byte	0x4b0
- 828 01ca 00       		.byte	0
- 829 01cb 0B       		.uleb128 0xb
- 830 01cc 6B000000 		.4byte	0x6b
- 831 01d0 DB010000 		.4byte	0x1db
- 832 01d4 0C       		.uleb128 0xc
- 833 01d5 AB000000 		.4byte	0xab
- 834 01d9 00       		.byte	0
- 835 01da 00       		.byte	0
- 836 01db 0D       		.uleb128 0xd
- 837 01dc 28030000 		.4byte	.LASF22
- 838 01e0 01       		.byte	0x1
- 839 01e1 8E       		.byte	0x8e
- 840 01e2 83000000 		.4byte	0x83
- 841 01e6 00000000 		.4byte	.LFB35
- 842 01ea 3A000000 		.4byte	.LFE35-.LFB35
- 843 01ee 01       		.uleb128 0x1
- 844 01ef 9C       		.byte	0x9c
- 845 01f0 60020000 		.4byte	0x260
- 846 01f4 0E       		.uleb128 0xe
- 847 01f5 636D6400 		.ascii	"cmd\000"
- 848 01f9 01       		.byte	0x1
- 849 01fa 8E       		.byte	0x8e
- 850 01fb 6B000000 		.4byte	0x6b
- 851 01ff 99000000 		.4byte	.LLST4
- 852 0203 0F       		.uleb128 0xf
- 853 0204 1B030000 		.4byte	.LASF19
- 854 0208 01       		.byte	0x1
- 855 0209 92       		.byte	0x92
- 856 020a 60020000 		.4byte	0x260
- 857 020e 02       		.uleb128 0x2
- 858 020f 91       		.byte	0x91
- 859 0210 74       		.sleb128 -12
- 860 0211 10       		.uleb128 0x10
- 861 0212 7E000000 		.4byte	.LASF23
- 862 0216 01       		.byte	0x1
- 863 0217 94       		.byte	0x94
- 864 0218 83000000 		.4byte	0x83
- 865 021c BA000000 		.4byte	.LLST5
- 866 0220 11       		.uleb128 0x11
- 867 0221 08000000 		.4byte	.LVL14
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 21
+ 750 017f 50       		.byte	0x50
+ 751 0180 09       		.uleb128 0x9
+ 752 0181 01       		.uleb128 0x1
+ 753 0182 53       		.byte	0x53
+ 754 0183 03       		.uleb128 0x3
+ 755 0184 F3       		.byte	0xf3
+ 756 0185 01       		.uleb128 0x1
+ 757 0186 51       		.byte	0x51
+ 758 0187 00       		.byte	0
+ 759 0188 08       		.uleb128 0x8
+ 760 0189 16000000 		.4byte	.LVL9
+ 761 018d FD040000 		.4byte	0x4fd
+ 762 0191 09       		.uleb128 0x9
+ 763 0192 01       		.uleb128 0x1
+ 764 0193 50       		.byte	0x50
+ 765 0194 02       		.uleb128 0x2
+ 766 0195 91       		.byte	0x91
+ 767 0196 44       		.sleb128 -60
+ 768 0197 00       		.byte	0
+ 769 0198 00       		.byte	0
+ 770 0199 0D       		.uleb128 0xd
+ 771 019a B5000000 		.4byte	0xb5
+ 772 019e A9010000 		.4byte	0x1a9
+ 773 01a2 0E       		.uleb128 0xe
+ 774 01a3 D4000000 		.4byte	0xd4
+ 775 01a7 31       		.byte	0x31
+ 776 01a8 00       		.byte	0
+ 777 01a9 0F       		.uleb128 0xf
+ 778 01aa 87030000 		.4byte	.LASF28
+ 779 01ae 01       		.byte	0x1
+ 780 01af 67       		.byte	0x67
+ 781 01b0 83000000 		.4byte	0x83
+ 782 01b4 00000000 		.4byte	.LFB34
+ 783 01b8 46000000 		.4byte	.LFE34-.LFB34
+ 784 01bc 01       		.uleb128 0x1
+ 785 01bd 9C       		.byte	0x9c
+ 786 01be 37020000 		.4byte	0x237
+ 787 01c2 10       		.uleb128 0x10
+ 788 01c3 636D6400 		.ascii	"cmd\000"
+ 789 01c7 01       		.byte	0x1
+ 790 01c8 67       		.byte	0x67
+ 791 01c9 6B000000 		.4byte	0x6b
+ 792 01cd 8A000000 		.4byte	.LLST4
+ 793 01d1 11       		.uleb128 0x11
+ 794 01d2 0A030000 		.4byte	.LASF26
+ 795 01d6 01       		.byte	0x1
+ 796 01d7 69       		.byte	0x69
+ 797 01d8 37020000 		.4byte	0x237
+ 798 01dc 02       		.uleb128 0x2
+ 799 01dd 91       		.byte	0x91
+ 800 01de 74       		.sleb128 -12
+ 801 01df 07       		.uleb128 0x7
+ 802 01e0 C1020000 		.4byte	.LASF27
+ 803 01e4 01       		.byte	0x1
+ 804 01e5 6A       		.byte	0x6a
+ 805 01e6 83000000 		.4byte	0x83
+ 806 01ea AB000000 		.4byte	.LLST5
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 22
 
 
- 868 0225 3D010000 		.4byte	0x13d
- 869 0229 11       		.uleb128 0x11
- 870 022a 0C000000 		.4byte	.LVL15
- 871 022e 8C040000 		.4byte	0x48c
- 872 0232 08       		.uleb128 0x8
- 873 0233 18000000 		.4byte	.LVL16
- 874 0237 BC040000 		.4byte	0x4bc
- 875 023b 56020000 		.4byte	0x256
- 876 023f 09       		.uleb128 0x9
- 877 0240 01       		.uleb128 0x1
- 878 0241 50       		.byte	0x50
- 879 0242 02       		.uleb128 0x2
- 880 0243 08       		.byte	0x8
- 881 0244 40       		.byte	0x40
- 882 0245 09       		.uleb128 0x9
- 883 0246 01       		.uleb128 0x1
- 884 0247 51       		.byte	0x51
- 885 0248 02       		.uleb128 0x2
- 886 0249 91       		.byte	0x91
- 887 024a 74       		.sleb128 -12
- 888 024b 09       		.uleb128 0x9
- 889 024c 01       		.uleb128 0x1
- 890 024d 52       		.byte	0x52
- 891 024e 01       		.uleb128 0x1
- 892 024f 33       		.byte	0x33
- 893 0250 09       		.uleb128 0x9
- 894 0251 01       		.uleb128 0x1
- 895 0252 53       		.byte	0x53
- 896 0253 01       		.uleb128 0x1
- 897 0254 30       		.byte	0x30
- 898 0255 00       		.byte	0
- 899 0256 11       		.uleb128 0x11
- 900 0257 20000000 		.4byte	.LVL17
- 901 025b A4040000 		.4byte	0x4a4
- 902 025f 00       		.byte	0
- 903 0260 0B       		.uleb128 0xb
- 904 0261 6B000000 		.4byte	0x6b
- 905 0265 70020000 		.4byte	0x270
- 906 0269 0C       		.uleb128 0xc
- 907 026a AB000000 		.4byte	0xab
- 908 026e 02       		.byte	0x2
- 909 026f 00       		.byte	0
- 910 0270 12       		.uleb128 0x12
- 911 0271 48000000 		.4byte	.LASF25
- 912 0275 01       		.byte	0x1
- 913 0276 B2       		.byte	0xb2
- 914 0277 8F000000 		.4byte	0x8f
- 915 027b 00000000 		.4byte	.LFB36
- 916 027f 38000000 		.4byte	.LFE36-.LFB36
- 917 0283 01       		.uleb128 0x1
- 918 0284 9C       		.byte	0x9c
- 919 0285 9A020000 		.4byte	0x29a
- 920 0289 0A       		.uleb128 0xa
- 921 028a 08000000 		.4byte	.LVL23
- 922 028e DB010000 		.4byte	0x1db
- 923 0292 09       		.uleb128 0x9
- 924 0293 01       		.uleb128 0x1
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 22
+ 807 01ee 12       		.uleb128 0x12
+ 808 01ef 0C000000 		.4byte	.LVL12
+ 809 01f3 09050000 		.4byte	0x509
+ 810 01f7 0C       		.uleb128 0xc
+ 811 01f8 18000000 		.4byte	.LVL13
+ 812 01fc 15050000 		.4byte	0x515
+ 813 0200 1B020000 		.4byte	0x21b
+ 814 0204 09       		.uleb128 0x9
+ 815 0205 01       		.uleb128 0x1
+ 816 0206 50       		.byte	0x50
+ 817 0207 02       		.uleb128 0x2
+ 818 0208 08       		.byte	0x8
+ 819 0209 40       		.byte	0x40
+ 820 020a 09       		.uleb128 0x9
+ 821 020b 01       		.uleb128 0x1
+ 822 020c 51       		.byte	0x51
+ 823 020d 02       		.uleb128 0x2
+ 824 020e 74       		.byte	0x74
+ 825 020f 00       		.sleb128 0
+ 826 0210 09       		.uleb128 0x9
+ 827 0211 01       		.uleb128 0x1
+ 828 0212 52       		.byte	0x52
+ 829 0213 01       		.uleb128 0x1
+ 830 0214 31       		.byte	0x31
+ 831 0215 09       		.uleb128 0x9
+ 832 0216 01       		.uleb128 0x1
+ 833 0217 53       		.byte	0x53
+ 834 0218 01       		.uleb128 0x1
+ 835 0219 30       		.byte	0x30
+ 836 021a 00       		.byte	0
+ 837 021b 12       		.uleb128 0x12
+ 838 021c 20000000 		.4byte	.LVL14
+ 839 0220 21050000 		.4byte	0x521
+ 840 0224 12       		.uleb128 0x12
+ 841 0225 28000000 		.4byte	.LVL15
+ 842 0229 21050000 		.4byte	0x521
+ 843 022d 12       		.uleb128 0x12
+ 844 022e 30000000 		.4byte	.LVL16
+ 845 0232 2D050000 		.4byte	0x52d
+ 846 0236 00       		.byte	0
+ 847 0237 0D       		.uleb128 0xd
+ 848 0238 6B000000 		.4byte	0x6b
+ 849 023c 47020000 		.4byte	0x247
+ 850 0240 0E       		.uleb128 0xe
+ 851 0241 D4000000 		.4byte	0xd4
+ 852 0245 00       		.byte	0
+ 853 0246 00       		.byte	0
+ 854 0247 0F       		.uleb128 0xf
+ 855 0248 D5010000 		.4byte	.LASF29
+ 856 024c 01       		.byte	0x1
+ 857 024d 9E       		.byte	0x9e
+ 858 024e 83000000 		.4byte	0x83
+ 859 0252 00000000 		.4byte	.LFB35
+ 860 0256 3A000000 		.4byte	.LFE35-.LFB35
+ 861 025a 01       		.uleb128 0x1
+ 862 025b 9C       		.byte	0x9c
+ 863 025c CC020000 		.4byte	0x2cc
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 23
 
 
- 925 0294 50       		.byte	0x50
- 926 0295 02       		.uleb128 0x2
- 927 0296 09       		.byte	0x9
- 928 0297 E3       		.byte	0xe3
- 929 0298 00       		.byte	0
- 930 0299 00       		.byte	0
- 931 029a 12       		.uleb128 0x12
- 932 029b 87030000 		.4byte	.LASF26
- 933 029f 01       		.byte	0x1
- 934 02a0 B6       		.byte	0xb6
- 935 02a1 8F000000 		.4byte	0x8f
- 936 02a5 00000000 		.4byte	.LFB37
- 937 02a9 30000000 		.4byte	.LFE37-.LFB37
- 938 02ad 01       		.uleb128 0x1
- 939 02ae 9C       		.byte	0x9c
- 940 02af C4020000 		.4byte	0x2c4
- 941 02b3 0A       		.uleb128 0xa
- 942 02b4 08000000 		.4byte	.LVL29
- 943 02b8 DB010000 		.4byte	0x1db
- 944 02bc 09       		.uleb128 0x9
- 945 02bd 01       		.uleb128 0x1
- 946 02be 50       		.byte	0x50
- 947 02bf 02       		.uleb128 0x2
- 948 02c0 09       		.byte	0x9
- 949 02c1 E5       		.byte	0xe5
- 950 02c2 00       		.byte	0
- 951 02c3 00       		.byte	0
- 952 02c4 13       		.uleb128 0x13
- 953 02c5 33020000 		.4byte	.LASF55
- 954 02c9 01       		.byte	0x1
- 955 02ca BA       		.byte	0xba
- 956 02cb 00000000 		.4byte	.LFB38
- 957 02cf 1C000000 		.4byte	.LFE38-.LFB38
- 958 02d3 01       		.uleb128 0x1
- 959 02d4 9C       		.byte	0x9c
- 960 02d5 1A030000 		.4byte	0x31a
- 961 02d9 10       		.uleb128 0x10
- 962 02da 84000000 		.4byte	.LASF18
- 963 02de 01       		.byte	0x1
- 964 02df BB       		.byte	0xbb
- 965 02e0 83000000 		.4byte	0x83
- 966 02e4 F0000000 		.4byte	.LLST6
- 967 02e8 10       		.uleb128 0x10
- 968 02e9 E1000000 		.4byte	.LASF27
- 969 02ed 01       		.byte	0x1
- 970 02ee BC       		.byte	0xbc
- 971 02ef 83000000 		.4byte	0x83
- 972 02f3 1A010000 		.4byte	.LLST7
- 973 02f7 11       		.uleb128 0x11
- 974 02f8 06000000 		.4byte	.LVL36
- 975 02fc 9A020000 		.4byte	0x29a
- 976 0300 11       		.uleb128 0x11
- 977 0301 10000000 		.4byte	.LVL39
- 978 0305 70020000 		.4byte	0x270
- 979 0309 0A       		.uleb128 0xa
- 980 030a 1A000000 		.4byte	.LVL41
- 981 030e B2000000 		.4byte	0xb2
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 23
+ 864 0260 10       		.uleb128 0x10
+ 865 0261 636D6400 		.ascii	"cmd\000"
+ 866 0265 01       		.byte	0x1
+ 867 0266 9E       		.byte	0x9e
+ 868 0267 6B000000 		.4byte	0x6b
+ 869 026b CB000000 		.4byte	.LLST6
+ 870 026f 11       		.uleb128 0x11
+ 871 0270 0A030000 		.4byte	.LASF26
+ 872 0274 01       		.byte	0x1
+ 873 0275 A2       		.byte	0xa2
+ 874 0276 CC020000 		.4byte	0x2cc
+ 875 027a 02       		.uleb128 0x2
+ 876 027b 91       		.byte	0x91
+ 877 027c 74       		.sleb128 -12
+ 878 027d 07       		.uleb128 0x7
+ 879 027e B8000000 		.4byte	.LASF30
+ 880 0282 01       		.byte	0x1
+ 881 0283 A4       		.byte	0xa4
+ 882 0284 83000000 		.4byte	0x83
+ 883 0288 EC000000 		.4byte	.LLST7
+ 884 028c 12       		.uleb128 0x12
+ 885 028d 08000000 		.4byte	.LVL19
+ 886 0291 A9010000 		.4byte	0x1a9
+ 887 0295 12       		.uleb128 0x12
+ 888 0296 0C000000 		.4byte	.LVL20
+ 889 029a 09050000 		.4byte	0x509
+ 890 029e 0C       		.uleb128 0xc
+ 891 029f 18000000 		.4byte	.LVL21
+ 892 02a3 39050000 		.4byte	0x539
+ 893 02a7 C2020000 		.4byte	0x2c2
+ 894 02ab 09       		.uleb128 0x9
+ 895 02ac 01       		.uleb128 0x1
+ 896 02ad 50       		.byte	0x50
+ 897 02ae 02       		.uleb128 0x2
+ 898 02af 08       		.byte	0x8
+ 899 02b0 40       		.byte	0x40
+ 900 02b1 09       		.uleb128 0x9
+ 901 02b2 01       		.uleb128 0x1
+ 902 02b3 51       		.byte	0x51
+ 903 02b4 02       		.uleb128 0x2
+ 904 02b5 91       		.byte	0x91
+ 905 02b6 74       		.sleb128 -12
+ 906 02b7 09       		.uleb128 0x9
+ 907 02b8 01       		.uleb128 0x1
+ 908 02b9 52       		.byte	0x52
+ 909 02ba 01       		.uleb128 0x1
+ 910 02bb 33       		.byte	0x33
+ 911 02bc 09       		.uleb128 0x9
+ 912 02bd 01       		.uleb128 0x1
+ 913 02be 53       		.byte	0x53
+ 914 02bf 01       		.uleb128 0x1
+ 915 02c0 30       		.byte	0x30
+ 916 02c1 00       		.byte	0
+ 917 02c2 12       		.uleb128 0x12
+ 918 02c3 20000000 		.4byte	.LVL22
+ 919 02c7 21050000 		.4byte	0x521
+ 920 02cb 00       		.byte	0
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 24
 
 
- 982 0312 09       		.uleb128 0x9
- 983 0313 01       		.uleb128 0x1
- 984 0314 51       		.byte	0x51
- 985 0315 02       		.uleb128 0x2
- 986 0316 74       		.byte	0x74
- 987 0317 00       		.sleb128 0
- 988 0318 00       		.byte	0
- 989 0319 00       		.byte	0
- 990 031a 05       		.uleb128 0x5
- 991 031b F5000000 		.4byte	.LASF28
- 992 031f 01       		.byte	0x1
- 993 0320 C8       		.byte	0xc8
- 994 0321 00000000 		.4byte	.LFB39
- 995 0325 1C000000 		.4byte	.LFE39-.LFB39
- 996 0329 01       		.uleb128 0x1
- 997 032a 9C       		.byte	0x9c
- 998 032b 7F030000 		.4byte	0x37f
- 999 032f 06       		.uleb128 0x6
- 1000 0330 0C010000 		.4byte	.LASF29
- 1001 0334 01       		.byte	0x1
- 1002 0335 C8       		.byte	0xc8
- 1003 0336 5D000000 		.4byte	0x5d
- 1004 033a 39010000 		.4byte	.LLST8
- 1005 033e 07       		.uleb128 0x7
- 1006 033f 6100     		.ascii	"a\000"
- 1007 0341 01       		.byte	0x1
- 1008 0342 C9       		.byte	0xc9
- 1009 0343 2D010000 		.4byte	0x12d
- 1010 0347 02       		.uleb128 0x2
- 1011 0348 91       		.byte	0x91
- 1012 0349 44       		.sleb128 -60
- 1013 034a 08       		.uleb128 0x8
- 1014 034b 0E000000 		.4byte	.LVL45
- 1015 034f 75040000 		.4byte	0x475
- 1016 0353 6E030000 		.4byte	0x36e
- 1017 0357 09       		.uleb128 0x9
- 1018 0358 01       		.uleb128 0x1
- 1019 0359 50       		.byte	0x50
- 1020 035a 02       		.uleb128 0x2
- 1021 035b 91       		.byte	0x91
- 1022 035c 44       		.sleb128 -60
- 1023 035d 09       		.uleb128 0x9
- 1024 035e 01       		.uleb128 0x1
- 1025 035f 51       		.byte	0x51
- 1026 0360 05       		.uleb128 0x5
- 1027 0361 03       		.byte	0x3
- 1028 0362 20000000 		.4byte	.LC2
- 1029 0366 09       		.uleb128 0x9
- 1030 0367 01       		.uleb128 0x1
- 1031 0368 52       		.byte	0x52
- 1032 0369 03       		.uleb128 0x3
- 1033 036a F3       		.byte	0xf3
- 1034 036b 01       		.uleb128 0x1
- 1035 036c 50       		.byte	0x50
- 1036 036d 00       		.byte	0
- 1037 036e 0A       		.uleb128 0xa
- 1038 036f 14000000 		.4byte	.LVL46
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 24
+ 921 02cc 0D       		.uleb128 0xd
+ 922 02cd 6B000000 		.4byte	0x6b
+ 923 02d1 DC020000 		.4byte	0x2dc
+ 924 02d5 0E       		.uleb128 0xe
+ 925 02d6 D4000000 		.4byte	0xd4
+ 926 02da 02       		.byte	0x2
+ 927 02db 00       		.byte	0
+ 928 02dc 13       		.uleb128 0x13
+ 929 02dd A9000000 		.4byte	.LASF31
+ 930 02e1 01       		.byte	0x1
+ 931 02e2 C2       		.byte	0xc2
+ 932 02e3 A7000000 		.4byte	0xa7
+ 933 02e7 00000000 		.4byte	.LFB36
+ 934 02eb 38000000 		.4byte	.LFE36-.LFB36
+ 935 02ef 01       		.uleb128 0x1
+ 936 02f0 9C       		.byte	0x9c
+ 937 02f1 06030000 		.4byte	0x306
+ 938 02f5 08       		.uleb128 0x8
+ 939 02f6 08000000 		.4byte	.LVL28
+ 940 02fa 47020000 		.4byte	0x247
+ 941 02fe 09       		.uleb128 0x9
+ 942 02ff 01       		.uleb128 0x1
+ 943 0300 50       		.byte	0x50
+ 944 0301 02       		.uleb128 0x2
+ 945 0302 09       		.byte	0x9
+ 946 0303 E3       		.byte	0xe3
+ 947 0304 00       		.byte	0
+ 948 0305 00       		.byte	0
+ 949 0306 13       		.uleb128 0x13
+ 950 0307 0A020000 		.4byte	.LASF32
+ 951 030b 01       		.byte	0x1
+ 952 030c C6       		.byte	0xc6
+ 953 030d A7000000 		.4byte	0xa7
+ 954 0311 00000000 		.4byte	.LFB37
+ 955 0315 30000000 		.4byte	.LFE37-.LFB37
+ 956 0319 01       		.uleb128 0x1
+ 957 031a 9C       		.byte	0x9c
+ 958 031b 30030000 		.4byte	0x330
+ 959 031f 08       		.uleb128 0x8
+ 960 0320 08000000 		.4byte	.LVL34
+ 961 0324 47020000 		.4byte	0x247
+ 962 0328 09       		.uleb128 0x9
+ 963 0329 01       		.uleb128 0x1
+ 964 032a 50       		.byte	0x50
+ 965 032b 02       		.uleb128 0x2
+ 966 032c 09       		.byte	0x9
+ 967 032d E5       		.byte	0xe5
+ 968 032e 00       		.byte	0
+ 969 032f 00       		.byte	0
+ 970 0330 14       		.uleb128 0x14
+ 971 0331 6E020000 		.4byte	.LASF60
+ 972 0335 01       		.byte	0x1
+ 973 0336 CA       		.byte	0xca
+ 974 0337 00000000 		.4byte	.LFB38
+ 975 033b 1C000000 		.4byte	.LFE38-.LFB38
+ 976 033f 01       		.uleb128 0x1
+ 977 0340 9C       		.byte	0x9c
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 25
 
 
- 1039 0373 80040000 		.4byte	0x480
- 1040 0377 09       		.uleb128 0x9
- 1041 0378 01       		.uleb128 0x1
- 1042 0379 50       		.byte	0x50
- 1043 037a 02       		.uleb128 0x2
- 1044 037b 91       		.byte	0x91
- 1045 037c 44       		.sleb128 -60
- 1046 037d 00       		.byte	0
- 1047 037e 00       		.byte	0
- 1048 037f 14       		.uleb128 0x14
- 1049 0380 5A010000 		.4byte	.LASF30
- 1050 0384 01       		.byte	0x1
- 1051 0385 CE       		.byte	0xce
- 1052 0386 00000000 		.4byte	.LFB40
- 1053 038a 88000000 		.4byte	.LFE40-.LFB40
- 1054 038e 01       		.uleb128 0x1
- 1055 038f 9C       		.byte	0x9c
- 1056 0390 E1030000 		.4byte	0x3e1
- 1057 0394 10       		.uleb128 0x10
- 1058 0395 ED000000 		.4byte	.LASF31
- 1059 0399 01       		.byte	0x1
- 1060 039a D0       		.byte	0xd0
- 1061 039b 83000000 		.4byte	0x83
- 1062 039f 65010000 		.4byte	.LLST9
- 1063 03a3 10       		.uleb128 0x10
- 1064 03a4 9C000000 		.4byte	.LASF32
- 1065 03a8 01       		.byte	0x1
- 1066 03a9 D1       		.byte	0xd1
- 1067 03aa 8F000000 		.4byte	0x8f
- 1068 03ae 83010000 		.4byte	.LLST10
- 1069 03b2 11       		.uleb128 0x11
- 1070 03b3 06000000 		.4byte	.LVL48
- 1071 03b7 C8040000 		.4byte	0x4c8
- 1072 03bb 08       		.uleb128 0x8
- 1073 03bc 0E000000 		.4byte	.LVL51
- 1074 03c0 D4040000 		.4byte	0x4d4
- 1075 03c4 CE030000 		.4byte	0x3ce
- 1076 03c8 09       		.uleb128 0x9
- 1077 03c9 01       		.uleb128 0x1
- 1078 03ca 50       		.byte	0x50
- 1079 03cb 01       		.uleb128 0x1
- 1080 03cc 30       		.byte	0x30
- 1081 03cd 00       		.byte	0
- 1082 03ce 11       		.uleb128 0x11
- 1083 03cf 12000000 		.4byte	.LVL52
- 1084 03d3 E0040000 		.4byte	0x4e0
- 1085 03d7 11       		.uleb128 0x11
- 1086 03d8 70000000 		.4byte	.LVL67
- 1087 03dc 1A030000 		.4byte	0x31a
- 1088 03e0 00       		.byte	0
- 1089 03e1 05       		.uleb128 0x5
- 1090 03e2 67030000 		.4byte	.LASF33
- 1091 03e6 01       		.byte	0x1
- 1092 03e7 E2       		.byte	0xe2
- 1093 03e8 00000000 		.4byte	.LFB41
- 1094 03ec 0A000000 		.4byte	.LFE41-.LFB41
- 1095 03f0 01       		.uleb128 0x1
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 25
+ 978 0341 86030000 		.4byte	0x386
+ 979 0345 07       		.uleb128 0x7
+ 980 0346 CD020000 		.4byte	.LASF25
+ 981 034a 01       		.byte	0x1
+ 982 034b CB       		.byte	0xcb
+ 983 034c 83000000 		.4byte	0x83
+ 984 0350 22010000 		.4byte	.LLST8
+ 985 0354 07       		.uleb128 0x7
+ 986 0355 50030000 		.4byte	.LASF33
+ 987 0359 01       		.byte	0x1
+ 988 035a CC       		.byte	0xcc
+ 989 035b 83000000 		.4byte	0x83
+ 990 035f 4C010000 		.4byte	.LLST9
+ 991 0363 12       		.uleb128 0x12
+ 992 0364 06000000 		.4byte	.LVL41
+ 993 0368 06030000 		.4byte	0x306
+ 994 036c 12       		.uleb128 0x12
+ 995 036d 10000000 		.4byte	.LVL44
+ 996 0371 DC020000 		.4byte	0x2dc
+ 997 0375 08       		.uleb128 0x8
+ 998 0376 1A000000 		.4byte	.LVL46
+ 999 037a 1E010000 		.4byte	0x11e
+ 1000 037e 09       		.uleb128 0x9
+ 1001 037f 01       		.uleb128 0x1
+ 1002 0380 51       		.byte	0x51
+ 1003 0381 02       		.uleb128 0x2
+ 1004 0382 74       		.byte	0x74
+ 1005 0383 00       		.sleb128 0
+ 1006 0384 00       		.byte	0
+ 1007 0385 00       		.byte	0
+ 1008 0386 06       		.uleb128 0x6
+ 1009 0387 91010000 		.4byte	.LASF34
+ 1010 038b 01       		.byte	0x1
+ 1011 038c F2       		.byte	0xf2
+ 1012 038d 00000000 		.4byte	.LFB39
+ 1013 0391 0A000000 		.4byte	.LFE39-.LFB39
+ 1014 0395 01       		.uleb128 0x1
+ 1015 0396 9C       		.byte	0x9c
+ 1016 0397 AB030000 		.4byte	0x3ab
+ 1017 039b 08       		.uleb128 0x8
+ 1018 039c 08000000 		.4byte	.LVL48
+ 1019 03a0 45050000 		.4byte	0x545
+ 1020 03a4 09       		.uleb128 0x9
+ 1021 03a5 01       		.uleb128 0x1
+ 1022 03a6 50       		.byte	0x50
+ 1023 03a7 01       		.uleb128 0x1
+ 1024 03a8 31       		.byte	0x31
+ 1025 03a9 00       		.byte	0
+ 1026 03aa 00       		.byte	0
+ 1027 03ab 15       		.uleb128 0x15
+ 1028 03ac A4000000 		.4byte	.LASF35
+ 1029 03b0 01       		.byte	0x1
+ 1030 03b1 2C01     		.2byte	0x12c
+ 1031 03b3 5D000000 		.4byte	0x5d
+ 1032 03b7 00000000 		.4byte	.LFB41
+ 1033 03bb 74000000 		.4byte	.LFE41-.LFB41
+ 1034 03bf 01       		.uleb128 0x1
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 26
 
 
- 1096 03f1 9C       		.byte	0x9c
- 1097 03f2 06040000 		.4byte	0x406
- 1098 03f6 0A       		.uleb128 0xa
- 1099 03f7 08000000 		.4byte	.LVL69
- 1100 03fb EB040000 		.4byte	0x4eb
- 1101 03ff 09       		.uleb128 0x9
- 1102 0400 01       		.uleb128 0x1
- 1103 0401 50       		.byte	0x50
- 1104 0402 01       		.uleb128 0x1
- 1105 0403 31       		.byte	0x31
- 1106 0404 00       		.byte	0
- 1107 0405 00       		.byte	0
- 1108 0406 15       		.uleb128 0x15
- 1109 0407 9D010000 		.4byte	.LASF34
- 1110 040b 01       		.byte	0x1
- 1111 040c F8       		.byte	0xf8
- 1112 040d 5D000000 		.4byte	0x5d
- 1113 0411 00000000 		.4byte	.LFB42
- 1114 0415 2C000000 		.4byte	.LFE42-.LFB42
- 1115 0419 01       		.uleb128 0x1
- 1116 041a 9C       		.byte	0x9c
- 1117 041b 75040000 		.4byte	0x475
- 1118 041f 11       		.uleb128 0x11
- 1119 0420 08000000 		.4byte	.LVL70
- 1120 0424 F7040000 		.4byte	0x4f7
- 1121 0428 11       		.uleb128 0x11
- 1122 0429 0C000000 		.4byte	.LVL71
- 1123 042d 02050000 		.4byte	0x502
- 1124 0431 11       		.uleb128 0x11
- 1125 0432 10000000 		.4byte	.LVL72
- 1126 0436 0D050000 		.4byte	0x50d
- 1127 043a 11       		.uleb128 0x11
- 1128 043b 14000000 		.4byte	.LVL73
- 1129 043f 19050000 		.4byte	0x519
- 1130 0443 08       		.uleb128 0x8
- 1131 0444 1A000000 		.4byte	.LVL74
- 1132 0448 25050000 		.4byte	0x525
- 1133 044c 5A040000 		.4byte	0x45a
- 1134 0450 09       		.uleb128 0x9
- 1135 0451 01       		.uleb128 0x1
- 1136 0452 50       		.byte	0x50
- 1137 0453 05       		.uleb128 0x5
- 1138 0454 03       		.byte	0x3
- 1139 0455 00000000 		.4byte	Ctr_Function
- 1140 0459 00       		.byte	0
- 1141 045a 11       		.uleb128 0x11
- 1142 045b 1E000000 		.4byte	.LVL75
- 1143 045f C4020000 		.4byte	0x2c4
- 1144 0463 0A       		.uleb128 0xa
- 1145 0464 26000000 		.4byte	.LVL76
- 1146 0468 30050000 		.4byte	0x530
- 1147 046c 09       		.uleb128 0x9
- 1148 046d 01       		.uleb128 0x1
- 1149 046e 50       		.byte	0x50
- 1150 046f 03       		.uleb128 0x3
- 1151 0470 0A       		.byte	0xa
- 1152 0471 F401     		.2byte	0x1f4
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 26
+ 1035 03c0 9C       		.byte	0x9c
+ 1036 03c1 8A040000 		.4byte	0x48a
+ 1037 03c5 16       		.uleb128 0x16
+ 1038 03c6 72657300 		.ascii	"res\000"
+ 1039 03ca 01       		.byte	0x1
+ 1040 03cb 3001     		.2byte	0x130
+ 1041 03cd 9B000000 		.4byte	0x9b
+ 1042 03d1 6B010000 		.4byte	.LLST10
+ 1043 03d5 17       		.uleb128 0x17
+ 1044 03d6 4C010000 		.4byte	.LASF36
+ 1045 03da 01       		.byte	0x1
+ 1046 03db 3101     		.2byte	0x131
+ 1047 03dd 8A040000 		.4byte	0x48a
+ 1048 03e1 03       		.uleb128 0x3
+ 1049 03e2 91       		.byte	0x91
+ 1050 03e3 FC7D     		.sleb128 -260
+ 1051 03e5 12       		.uleb128 0x12
+ 1052 03e6 0A000000 		.4byte	.LVL50
+ 1053 03ea 51050000 		.4byte	0x551
+ 1054 03ee 12       		.uleb128 0x12
+ 1055 03ef 0E000000 		.4byte	.LVL51
+ 1056 03f3 5C050000 		.4byte	0x55c
+ 1057 03f7 12       		.uleb128 0x12
+ 1058 03f8 12000000 		.4byte	.LVL52
+ 1059 03fc 67050000 		.4byte	0x567
+ 1060 0400 12       		.uleb128 0x12
+ 1061 0401 16000000 		.4byte	.LVL53
+ 1062 0405 73050000 		.4byte	0x573
+ 1063 0409 12       		.uleb128 0x12
+ 1064 040a 1A000000 		.4byte	.LVL54
+ 1065 040e 7E050000 		.4byte	0x57e
+ 1066 0412 0C       		.uleb128 0xc
+ 1067 0413 20000000 		.4byte	.LVL55
+ 1068 0417 89050000 		.4byte	0x589
+ 1069 041b 29040000 		.4byte	0x429
+ 1070 041f 09       		.uleb128 0x9
+ 1071 0420 01       		.uleb128 0x1
+ 1072 0421 50       		.byte	0x50
+ 1073 0422 05       		.uleb128 0x5
+ 1074 0423 03       		.byte	0x3
+ 1075 0424 00000000 		.4byte	ADC_SAR_SEQ_ISR_LOC
+ 1076 0428 00       		.byte	0
+ 1077 0429 12       		.uleb128 0x12
+ 1078 042a 24000000 		.4byte	.LVL56
+ 1079 042e 30030000 		.4byte	0x330
+ 1080 0432 0C       		.uleb128 0xc
+ 1081 0433 2C000000 		.4byte	.LVL57
+ 1082 0437 94050000 		.4byte	0x594
+ 1083 043b 47040000 		.4byte	0x447
+ 1084 043f 09       		.uleb128 0x9
+ 1085 0440 01       		.uleb128 0x1
+ 1086 0441 50       		.byte	0x50
+ 1087 0442 03       		.uleb128 0x3
+ 1088 0443 0A       		.byte	0xa
+ 1089 0444 F401     		.2byte	0x1f4
+ 1090 0446 00       		.byte	0
+ 1091 0447 0C       		.uleb128 0xc
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 27
 
 
- 1153 0473 00       		.byte	0
- 1154 0474 00       		.byte	0
- 1155 0475 16       		.uleb128 0x16
- 1156 0476 77030000 		.4byte	.LASF35
- 1157 047a 77030000 		.4byte	.LASF35
- 1158 047e 03       		.byte	0x3
- 1159 047f E7       		.byte	0xe7
- 1160 0480 17       		.uleb128 0x17
- 1161 0481 BD000000 		.4byte	.LASF36
- 1162 0485 BD000000 		.4byte	.LASF36
- 1163 0489 04       		.byte	0x4
- 1164 048a 2A03     		.2byte	0x32a
- 1165 048c 17       		.uleb128 0x17
- 1166 048d F7020000 		.4byte	.LASF37
- 1167 0491 F7020000 		.4byte	.LASF37
- 1168 0495 05       		.byte	0x5
- 1169 0496 1001     		.2byte	0x110
- 1170 0498 17       		.uleb128 0x17
- 1171 0499 7F010000 		.4byte	.LASF38
- 1172 049d 7F010000 		.4byte	.LASF38
- 1173 04a1 05       		.byte	0x5
- 1174 04a2 1301     		.2byte	0x113
- 1175 04a4 17       		.uleb128 0x17
- 1176 04a5 A8000000 		.4byte	.LASF39
- 1177 04a9 A8000000 		.4byte	.LASF39
- 1178 04ad 05       		.byte	0x5
- 1179 04ae 0F01     		.2byte	0x10f
- 1180 04b0 17       		.uleb128 0x17
- 1181 04b1 00000000 		.4byte	.LASF40
- 1182 04b5 00000000 		.4byte	.LASF40
- 1183 04b9 05       		.byte	0x5
- 1184 04ba 1601     		.2byte	0x116
- 1185 04bc 17       		.uleb128 0x17
- 1186 04bd 1E000000 		.4byte	.LASF41
- 1187 04c1 1E000000 		.4byte	.LASF41
- 1188 04c5 05       		.byte	0x5
- 1189 04c6 1401     		.2byte	0x114
- 1190 04c8 17       		.uleb128 0x17
- 1191 04c9 8A000000 		.4byte	.LASF42
- 1192 04cd 8A000000 		.4byte	.LASF42
- 1193 04d1 06       		.byte	0x6
- 1194 04d2 4B01     		.2byte	0x14b
- 1195 04d4 17       		.uleb128 0x17
- 1196 04d5 33030000 		.4byte	.LASF43
- 1197 04d9 33030000 		.4byte	.LASF43
- 1198 04dd 06       		.byte	0x6
- 1199 04de 4A01     		.2byte	0x14a
- 1200 04e0 16       		.uleb128 0x16
- 1201 04e1 A9010000 		.4byte	.LASF44
- 1202 04e5 A9010000 		.4byte	.LASF44
- 1203 04e9 07       		.byte	0x7
- 1204 04ea 39       		.byte	0x39
- 1205 04eb 17       		.uleb128 0x17
- 1206 04ec 5D000000 		.4byte	.LASF45
- 1207 04f0 5D000000 		.4byte	.LASF45
- 1208 04f4 08       		.byte	0x8
- 1209 04f5 4701     		.2byte	0x147
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 27
+ 1092 0448 4A000000 		.4byte	.LVL58
+ 1093 044c 9F050000 		.4byte	0x59f
+ 1094 0450 5A040000 		.4byte	0x45a
+ 1095 0454 09       		.uleb128 0x9
+ 1096 0455 01       		.uleb128 0x1
+ 1097 0456 50       		.byte	0x50
+ 1098 0457 01       		.uleb128 0x1
+ 1099 0458 30       		.byte	0x30
+ 1100 0459 00       		.byte	0
+ 1101 045a 0C       		.uleb128 0xc
+ 1102 045b 5A000000 		.4byte	.LVL60
+ 1103 045f F2040000 		.4byte	0x4f2
+ 1104 0463 78040000 		.4byte	0x478
+ 1105 0467 09       		.uleb128 0x9
+ 1106 0468 01       		.uleb128 0x1
+ 1107 0469 50       		.byte	0x50
+ 1108 046a 03       		.uleb128 0x3
+ 1109 046b 91       		.byte	0x91
+ 1110 046c FC7D     		.sleb128 -260
+ 1111 046e 09       		.uleb128 0x9
+ 1112 046f 01       		.uleb128 0x1
+ 1113 0470 51       		.byte	0x51
+ 1114 0471 05       		.uleb128 0x5
+ 1115 0472 03       		.byte	0x3
+ 1116 0473 20000000 		.4byte	.LC7
+ 1117 0477 00       		.byte	0
+ 1118 0478 08       		.uleb128 0x8
+ 1119 0479 60000000 		.4byte	.LVL61
+ 1120 047d FD040000 		.4byte	0x4fd
+ 1121 0481 09       		.uleb128 0x9
+ 1122 0482 01       		.uleb128 0x1
+ 1123 0483 50       		.byte	0x50
+ 1124 0484 03       		.uleb128 0x3
+ 1125 0485 91       		.byte	0x91
+ 1126 0486 FC7D     		.sleb128 -260
+ 1127 0488 00       		.byte	0
+ 1128 0489 00       		.byte	0
+ 1129 048a 0D       		.uleb128 0xd
+ 1130 048b B5000000 		.4byte	0xb5
+ 1131 048f 9A040000 		.4byte	0x49a
+ 1132 0493 0E       		.uleb128 0xe
+ 1133 0494 D4000000 		.4byte	0xd4
+ 1134 0498 F9       		.byte	0xf9
+ 1135 0499 00       		.byte	0
+ 1136 049a 18       		.uleb128 0x18
+ 1137 049b DE020000 		.4byte	.LASF37
+ 1138 049f 01       		.byte	0x1
+ 1139 04a0 43       		.byte	0x43
+ 1140 04a1 C8000000 		.4byte	0xc8
+ 1141 04a5 05       		.uleb128 0x5
+ 1142 04a6 03       		.byte	0x3
+ 1143 04a7 00000000 		.4byte	dataReady
+ 1144 04ab 0D       		.uleb128 0xd
+ 1145 04ac BB040000 		.4byte	0x4bb
+ 1146 04b0 BB040000 		.4byte	0x4bb
+ 1147 04b4 0E       		.uleb128 0xe
+ 1148 04b5 D4000000 		.4byte	0xd4
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 28
 
 
- 1210 04f7 16       		.uleb128 0x16
- 1211 04f8 11020000 		.4byte	.LASF46
- 1212 04fc 11020000 		.4byte	.LASF46
- 1213 0500 09       		.byte	0x9
- 1214 0501 72       		.byte	0x72
- 1215 0502 16       		.uleb128 0x16
- 1216 0503 4F010000 		.4byte	.LASF47
- 1217 0507 4F010000 		.4byte	.LASF47
- 1218 050b 0A       		.byte	0xa
- 1219 050c 72       		.byte	0x72
- 1220 050d 17       		.uleb128 0x17
- 1221 050e F8010000 		.4byte	.LASF48
- 1222 0512 F8010000 		.4byte	.LASF48
- 1223 0516 06       		.byte	0x6
- 1224 0517 3201     		.2byte	0x132
- 1225 0519 17       		.uleb128 0x17
- 1226 051a 67010000 		.4byte	.LASF49
- 1227 051e 67010000 		.4byte	.LASF49
- 1228 0522 08       		.byte	0x8
- 1229 0523 3201     		.2byte	0x132
- 1230 0525 16       		.uleb128 0x16
- 1231 0526 34000000 		.4byte	.LASF50
- 1232 052a 34000000 		.4byte	.LASF50
- 1233 052e 0B       		.byte	0xb
- 1234 052f 18       		.byte	0x18
- 1235 0530 16       		.uleb128 0x16
- 1236 0531 7F030000 		.4byte	.LASF51
- 1237 0535 7F030000 		.4byte	.LASF51
- 1238 0539 0C       		.byte	0xc
- 1239 053a D9       		.byte	0xd9
- 1240 053b 00       		.byte	0
- 1241              		.section	.debug_abbrev,"",%progbits
- 1242              	.Ldebug_abbrev0:
- 1243 0000 01       		.uleb128 0x1
- 1244 0001 11       		.uleb128 0x11
- 1245 0002 01       		.byte	0x1
- 1246 0003 25       		.uleb128 0x25
- 1247 0004 0E       		.uleb128 0xe
- 1248 0005 13       		.uleb128 0x13
- 1249 0006 0B       		.uleb128 0xb
- 1250 0007 03       		.uleb128 0x3
- 1251 0008 0E       		.uleb128 0xe
- 1252 0009 1B       		.uleb128 0x1b
- 1253 000a 0E       		.uleb128 0xe
- 1254 000b 55       		.uleb128 0x55
- 1255 000c 17       		.uleb128 0x17
- 1256 000d 11       		.uleb128 0x11
- 1257 000e 01       		.uleb128 0x1
- 1258 000f 10       		.uleb128 0x10
- 1259 0010 17       		.uleb128 0x17
- 1260 0011 00       		.byte	0
- 1261 0012 00       		.byte	0
- 1262 0013 02       		.uleb128 0x2
- 1263 0014 24       		.uleb128 0x24
- 1264 0015 00       		.byte	0
- 1265 0016 0B       		.uleb128 0xb
- 1266 0017 0B       		.uleb128 0xb
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 28
+ 1149 04b9 00       		.byte	0
+ 1150 04ba 00       		.byte	0
+ 1151 04bb 05       		.uleb128 0x5
+ 1152 04bc 8F000000 		.4byte	0x8f
+ 1153 04c0 18       		.uleb128 0x18
+ 1154 04c1 18000000 		.4byte	.LASF38
+ 1155 04c5 01       		.byte	0x1
+ 1156 04c6 44       		.byte	0x44
+ 1157 04c7 D1040000 		.4byte	0x4d1
+ 1158 04cb 05       		.uleb128 0x5
+ 1159 04cc 03       		.byte	0x3
+ 1160 04cd 00000000 		.4byte	result
+ 1161 04d1 05       		.uleb128 0x5
+ 1162 04d2 AB040000 		.4byte	0x4ab
+ 1163 04d6 18       		.uleb128 0x18
+ 1164 04d7 B1030000 		.4byte	.LASF39
+ 1165 04db 01       		.byte	0x1
+ 1166 04dc 45       		.byte	0x45
+ 1167 04dd C8000000 		.4byte	0xc8
+ 1168 04e1 05       		.uleb128 0x5
+ 1169 04e2 03       		.byte	0x3
+ 1170 04e3 00000000 		.4byte	timer_delay
+ 1171 04e7 19       		.uleb128 0x19
+ 1172 04e8 11030000 		.4byte	.LASF40
+ 1173 04ec 11030000 		.4byte	.LASF40
+ 1174 04f0 03       		.byte	0x3
+ 1175 04f1 A0       		.byte	0xa0
+ 1176 04f2 19       		.uleb128 0x19
+ 1177 04f3 30020000 		.4byte	.LASF41
+ 1178 04f7 30020000 		.4byte	.LASF41
+ 1179 04fb 04       		.byte	0x4
+ 1180 04fc E7       		.byte	0xe7
+ 1181 04fd 1A       		.uleb128 0x1a
+ 1182 04fe 5B020000 		.4byte	.LASF42
+ 1183 0502 5B020000 		.4byte	.LASF42
+ 1184 0506 05       		.byte	0x5
+ 1185 0507 2A03     		.2byte	0x32a
+ 1186 0509 1A       		.uleb128 0x1a
+ 1187 050a 8E020000 		.4byte	.LASF43
+ 1188 050e 8E020000 		.4byte	.LASF43
+ 1189 0512 06       		.byte	0x6
+ 1190 0513 1001     		.2byte	0x110
+ 1191 0515 1A       		.uleb128 0x1a
+ 1192 0516 9A030000 		.4byte	.LASF44
+ 1193 051a 9A030000 		.4byte	.LASF44
+ 1194 051e 06       		.byte	0x6
+ 1195 051f 1301     		.2byte	0x113
+ 1196 0521 1A       		.uleb128 0x1a
+ 1197 0522 72030000 		.4byte	.LASF45
+ 1198 0526 72030000 		.4byte	.LASF45
+ 1199 052a 06       		.byte	0x6
+ 1200 052b 0F01     		.2byte	0x10f
+ 1201 052d 1A       		.uleb128 0x1a
+ 1202 052e EC010000 		.4byte	.LASF46
+ 1203 0532 EC010000 		.4byte	.LASF46
+ 1204 0536 06       		.byte	0x6
+ 1205 0537 1601     		.2byte	0x116
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 29
 
 
- 1267 0018 3E       		.uleb128 0x3e
- 1268 0019 0B       		.uleb128 0xb
- 1269 001a 03       		.uleb128 0x3
- 1270 001b 0E       		.uleb128 0xe
- 1271 001c 00       		.byte	0
- 1272 001d 00       		.byte	0
- 1273 001e 03       		.uleb128 0x3
- 1274 001f 24       		.uleb128 0x24
- 1275 0020 00       		.byte	0
- 1276 0021 0B       		.uleb128 0xb
- 1277 0022 0B       		.uleb128 0xb
- 1278 0023 3E       		.uleb128 0x3e
- 1279 0024 0B       		.uleb128 0xb
- 1280 0025 03       		.uleb128 0x3
- 1281 0026 08       		.uleb128 0x8
- 1282 0027 00       		.byte	0
- 1283 0028 00       		.byte	0
- 1284 0029 04       		.uleb128 0x4
- 1285 002a 16       		.uleb128 0x16
- 1286 002b 00       		.byte	0
- 1287 002c 03       		.uleb128 0x3
- 1288 002d 0E       		.uleb128 0xe
- 1289 002e 3A       		.uleb128 0x3a
- 1290 002f 0B       		.uleb128 0xb
- 1291 0030 3B       		.uleb128 0x3b
- 1292 0031 05       		.uleb128 0x5
- 1293 0032 49       		.uleb128 0x49
- 1294 0033 13       		.uleb128 0x13
- 1295 0034 00       		.byte	0
- 1296 0035 00       		.byte	0
- 1297 0036 05       		.uleb128 0x5
- 1298 0037 2E       		.uleb128 0x2e
- 1299 0038 01       		.byte	0x1
- 1300 0039 3F       		.uleb128 0x3f
- 1301 003a 19       		.uleb128 0x19
- 1302 003b 03       		.uleb128 0x3
- 1303 003c 0E       		.uleb128 0xe
- 1304 003d 3A       		.uleb128 0x3a
- 1305 003e 0B       		.uleb128 0xb
- 1306 003f 3B       		.uleb128 0x3b
- 1307 0040 0B       		.uleb128 0xb
- 1308 0041 27       		.uleb128 0x27
- 1309 0042 19       		.uleb128 0x19
- 1310 0043 11       		.uleb128 0x11
- 1311 0044 01       		.uleb128 0x1
- 1312 0045 12       		.uleb128 0x12
- 1313 0046 06       		.uleb128 0x6
- 1314 0047 40       		.uleb128 0x40
- 1315 0048 18       		.uleb128 0x18
- 1316 0049 9742     		.uleb128 0x2117
- 1317 004b 19       		.uleb128 0x19
- 1318 004c 01       		.uleb128 0x1
- 1319 004d 13       		.uleb128 0x13
- 1320 004e 00       		.byte	0
- 1321 004f 00       		.byte	0
- 1322 0050 06       		.uleb128 0x6
- 1323 0051 05       		.uleb128 0x5
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 29
+ 1206 0539 1A       		.uleb128 0x1a
+ 1207 053a 5C030000 		.4byte	.LASF47
+ 1208 053e 5C030000 		.4byte	.LASF47
+ 1209 0542 06       		.byte	0x6
+ 1210 0543 1401     		.2byte	0x114
+ 1211 0545 1A       		.uleb128 0x1a
+ 1212 0546 83000000 		.4byte	.LASF48
+ 1213 054a 83000000 		.4byte	.LASF48
+ 1214 054e 07       		.byte	0x7
+ 1215 054f 4701     		.2byte	0x147
+ 1216 0551 19       		.uleb128 0x19
+ 1217 0552 B5010000 		.4byte	.LASF49
+ 1218 0556 B5010000 		.4byte	.LASF49
+ 1219 055a 08       		.byte	0x8
+ 1220 055b 72       		.byte	0x72
+ 1221 055c 19       		.uleb128 0x19
+ 1222 055d D3020000 		.4byte	.LASF50
+ 1223 0561 D3020000 		.4byte	.LASF50
+ 1224 0565 09       		.byte	0x9
+ 1225 0566 72       		.byte	0x72
+ 1226 0567 1A       		.uleb128 0x1a
+ 1227 0568 C0010000 		.4byte	.LASF51
+ 1228 056c C0010000 		.4byte	.LASF51
+ 1229 0570 0A       		.byte	0xa
+ 1230 0571 3201     		.2byte	0x132
+ 1231 0573 19       		.uleb128 0x19
+ 1232 0574 7F010000 		.4byte	.LASF52
+ 1233 0578 7F010000 		.4byte	.LASF52
+ 1234 057c 03       		.byte	0x3
+ 1235 057d 99       		.byte	0x99
+ 1236 057e 19       		.uleb128 0x19
+ 1237 057f C5030000 		.4byte	.LASF53
+ 1238 0583 C5030000 		.4byte	.LASF53
+ 1239 0587 03       		.byte	0x3
+ 1240 0588 9D       		.byte	0x9d
+ 1241 0589 19       		.uleb128 0x19
+ 1242 058a 00000000 		.4byte	.LASF54
+ 1243 058e 00000000 		.4byte	.LASF54
+ 1244 0592 0B       		.byte	0xb
+ 1245 0593 18       		.byte	0x18
+ 1246 0594 19       		.uleb128 0x19
+ 1247 0595 BD030000 		.4byte	.LASF55
+ 1248 0599 BD030000 		.4byte	.LASF55
+ 1249 059d 0C       		.byte	0xc
+ 1250 059e D9       		.byte	0xd9
+ 1251 059f 19       		.uleb128 0x19
+ 1252 05a0 E8020000 		.4byte	.LASF56
+ 1253 05a4 E8020000 		.4byte	.LASF56
+ 1254 05a8 03       		.byte	0x3
+ 1255 05a9 AE       		.byte	0xae
+ 1256 05aa 00       		.byte	0
+ 1257              		.section	.debug_abbrev,"",%progbits
+ 1258              	.Ldebug_abbrev0:
+ 1259 0000 01       		.uleb128 0x1
+ 1260 0001 11       		.uleb128 0x11
+ 1261 0002 01       		.byte	0x1
+ 1262 0003 25       		.uleb128 0x25
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 30
 
 
- 1324 0052 00       		.byte	0
- 1325 0053 03       		.uleb128 0x3
- 1326 0054 0E       		.uleb128 0xe
- 1327 0055 3A       		.uleb128 0x3a
- 1328 0056 0B       		.uleb128 0xb
- 1329 0057 3B       		.uleb128 0x3b
- 1330 0058 0B       		.uleb128 0xb
- 1331 0059 49       		.uleb128 0x49
- 1332 005a 13       		.uleb128 0x13
- 1333 005b 02       		.uleb128 0x2
- 1334 005c 17       		.uleb128 0x17
- 1335 005d 00       		.byte	0
- 1336 005e 00       		.byte	0
- 1337 005f 07       		.uleb128 0x7
- 1338 0060 34       		.uleb128 0x34
- 1339 0061 00       		.byte	0
- 1340 0062 03       		.uleb128 0x3
- 1341 0063 08       		.uleb128 0x8
- 1342 0064 3A       		.uleb128 0x3a
- 1343 0065 0B       		.uleb128 0xb
- 1344 0066 3B       		.uleb128 0x3b
- 1345 0067 0B       		.uleb128 0xb
- 1346 0068 49       		.uleb128 0x49
- 1347 0069 13       		.uleb128 0x13
- 1348 006a 02       		.uleb128 0x2
- 1349 006b 18       		.uleb128 0x18
- 1350 006c 00       		.byte	0
- 1351 006d 00       		.byte	0
- 1352 006e 08       		.uleb128 0x8
- 1353 006f 898201   		.uleb128 0x4109
- 1354 0072 01       		.byte	0x1
- 1355 0073 11       		.uleb128 0x11
- 1356 0074 01       		.uleb128 0x1
- 1357 0075 31       		.uleb128 0x31
- 1358 0076 13       		.uleb128 0x13
- 1359 0077 01       		.uleb128 0x1
- 1360 0078 13       		.uleb128 0x13
- 1361 0079 00       		.byte	0
- 1362 007a 00       		.byte	0
- 1363 007b 09       		.uleb128 0x9
- 1364 007c 8A8201   		.uleb128 0x410a
- 1365 007f 00       		.byte	0
- 1366 0080 02       		.uleb128 0x2
- 1367 0081 18       		.uleb128 0x18
- 1368 0082 9142     		.uleb128 0x2111
- 1369 0084 18       		.uleb128 0x18
- 1370 0085 00       		.byte	0
- 1371 0086 00       		.byte	0
- 1372 0087 0A       		.uleb128 0xa
- 1373 0088 898201   		.uleb128 0x4109
- 1374 008b 01       		.byte	0x1
- 1375 008c 11       		.uleb128 0x11
- 1376 008d 01       		.uleb128 0x1
- 1377 008e 31       		.uleb128 0x31
- 1378 008f 13       		.uleb128 0x13
- 1379 0090 00       		.byte	0
- 1380 0091 00       		.byte	0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 30
+ 1263 0004 0E       		.uleb128 0xe
+ 1264 0005 13       		.uleb128 0x13
+ 1265 0006 0B       		.uleb128 0xb
+ 1266 0007 03       		.uleb128 0x3
+ 1267 0008 0E       		.uleb128 0xe
+ 1268 0009 1B       		.uleb128 0x1b
+ 1269 000a 0E       		.uleb128 0xe
+ 1270 000b 55       		.uleb128 0x55
+ 1271 000c 17       		.uleb128 0x17
+ 1272 000d 11       		.uleb128 0x11
+ 1273 000e 01       		.uleb128 0x1
+ 1274 000f 10       		.uleb128 0x10
+ 1275 0010 17       		.uleb128 0x17
+ 1276 0011 00       		.byte	0
+ 1277 0012 00       		.byte	0
+ 1278 0013 02       		.uleb128 0x2
+ 1279 0014 24       		.uleb128 0x24
+ 1280 0015 00       		.byte	0
+ 1281 0016 0B       		.uleb128 0xb
+ 1282 0017 0B       		.uleb128 0xb
+ 1283 0018 3E       		.uleb128 0x3e
+ 1284 0019 0B       		.uleb128 0xb
+ 1285 001a 03       		.uleb128 0x3
+ 1286 001b 0E       		.uleb128 0xe
+ 1287 001c 00       		.byte	0
+ 1288 001d 00       		.byte	0
+ 1289 001e 03       		.uleb128 0x3
+ 1290 001f 24       		.uleb128 0x24
+ 1291 0020 00       		.byte	0
+ 1292 0021 0B       		.uleb128 0xb
+ 1293 0022 0B       		.uleb128 0xb
+ 1294 0023 3E       		.uleb128 0x3e
+ 1295 0024 0B       		.uleb128 0xb
+ 1296 0025 03       		.uleb128 0x3
+ 1297 0026 08       		.uleb128 0x8
+ 1298 0027 00       		.byte	0
+ 1299 0028 00       		.byte	0
+ 1300 0029 04       		.uleb128 0x4
+ 1301 002a 16       		.uleb128 0x16
+ 1302 002b 00       		.byte	0
+ 1303 002c 03       		.uleb128 0x3
+ 1304 002d 0E       		.uleb128 0xe
+ 1305 002e 3A       		.uleb128 0x3a
+ 1306 002f 0B       		.uleb128 0xb
+ 1307 0030 3B       		.uleb128 0x3b
+ 1308 0031 05       		.uleb128 0x5
+ 1309 0032 49       		.uleb128 0x49
+ 1310 0033 13       		.uleb128 0x13
+ 1311 0034 00       		.byte	0
+ 1312 0035 00       		.byte	0
+ 1313 0036 05       		.uleb128 0x5
+ 1314 0037 35       		.uleb128 0x35
+ 1315 0038 00       		.byte	0
+ 1316 0039 49       		.uleb128 0x49
+ 1317 003a 13       		.uleb128 0x13
+ 1318 003b 00       		.byte	0
+ 1319 003c 00       		.byte	0
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 31
 
 
- 1381 0092 0B       		.uleb128 0xb
- 1382 0093 01       		.uleb128 0x1
- 1383 0094 01       		.byte	0x1
- 1384 0095 49       		.uleb128 0x49
- 1385 0096 13       		.uleb128 0x13
- 1386 0097 01       		.uleb128 0x1
- 1387 0098 13       		.uleb128 0x13
- 1388 0099 00       		.byte	0
- 1389 009a 00       		.byte	0
- 1390 009b 0C       		.uleb128 0xc
- 1391 009c 21       		.uleb128 0x21
- 1392 009d 00       		.byte	0
- 1393 009e 49       		.uleb128 0x49
- 1394 009f 13       		.uleb128 0x13
- 1395 00a0 2F       		.uleb128 0x2f
- 1396 00a1 0B       		.uleb128 0xb
- 1397 00a2 00       		.byte	0
- 1398 00a3 00       		.byte	0
- 1399 00a4 0D       		.uleb128 0xd
- 1400 00a5 2E       		.uleb128 0x2e
- 1401 00a6 01       		.byte	0x1
- 1402 00a7 3F       		.uleb128 0x3f
- 1403 00a8 19       		.uleb128 0x19
- 1404 00a9 03       		.uleb128 0x3
- 1405 00aa 0E       		.uleb128 0xe
- 1406 00ab 3A       		.uleb128 0x3a
- 1407 00ac 0B       		.uleb128 0xb
- 1408 00ad 3B       		.uleb128 0x3b
- 1409 00ae 0B       		.uleb128 0xb
- 1410 00af 27       		.uleb128 0x27
- 1411 00b0 19       		.uleb128 0x19
- 1412 00b1 49       		.uleb128 0x49
- 1413 00b2 13       		.uleb128 0x13
- 1414 00b3 11       		.uleb128 0x11
- 1415 00b4 01       		.uleb128 0x1
- 1416 00b5 12       		.uleb128 0x12
- 1417 00b6 06       		.uleb128 0x6
- 1418 00b7 40       		.uleb128 0x40
- 1419 00b8 18       		.uleb128 0x18
- 1420 00b9 9742     		.uleb128 0x2117
- 1421 00bb 19       		.uleb128 0x19
- 1422 00bc 01       		.uleb128 0x1
- 1423 00bd 13       		.uleb128 0x13
- 1424 00be 00       		.byte	0
- 1425 00bf 00       		.byte	0
- 1426 00c0 0E       		.uleb128 0xe
- 1427 00c1 05       		.uleb128 0x5
- 1428 00c2 00       		.byte	0
- 1429 00c3 03       		.uleb128 0x3
- 1430 00c4 08       		.uleb128 0x8
- 1431 00c5 3A       		.uleb128 0x3a
- 1432 00c6 0B       		.uleb128 0xb
- 1433 00c7 3B       		.uleb128 0x3b
- 1434 00c8 0B       		.uleb128 0xb
- 1435 00c9 49       		.uleb128 0x49
- 1436 00ca 13       		.uleb128 0x13
- 1437 00cb 02       		.uleb128 0x2
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 31
+ 1320 003d 06       		.uleb128 0x6
+ 1321 003e 2E       		.uleb128 0x2e
+ 1322 003f 01       		.byte	0x1
+ 1323 0040 3F       		.uleb128 0x3f
+ 1324 0041 19       		.uleb128 0x19
+ 1325 0042 03       		.uleb128 0x3
+ 1326 0043 0E       		.uleb128 0xe
+ 1327 0044 3A       		.uleb128 0x3a
+ 1328 0045 0B       		.uleb128 0xb
+ 1329 0046 3B       		.uleb128 0x3b
+ 1330 0047 0B       		.uleb128 0xb
+ 1331 0048 27       		.uleb128 0x27
+ 1332 0049 19       		.uleb128 0x19
+ 1333 004a 11       		.uleb128 0x11
+ 1334 004b 01       		.uleb128 0x1
+ 1335 004c 12       		.uleb128 0x12
+ 1336 004d 06       		.uleb128 0x6
+ 1337 004e 40       		.uleb128 0x40
+ 1338 004f 18       		.uleb128 0x18
+ 1339 0050 9742     		.uleb128 0x2117
+ 1340 0052 19       		.uleb128 0x19
+ 1341 0053 01       		.uleb128 0x1
+ 1342 0054 13       		.uleb128 0x13
+ 1343 0055 00       		.byte	0
+ 1344 0056 00       		.byte	0
+ 1345 0057 07       		.uleb128 0x7
+ 1346 0058 34       		.uleb128 0x34
+ 1347 0059 00       		.byte	0
+ 1348 005a 03       		.uleb128 0x3
+ 1349 005b 0E       		.uleb128 0xe
+ 1350 005c 3A       		.uleb128 0x3a
+ 1351 005d 0B       		.uleb128 0xb
+ 1352 005e 3B       		.uleb128 0x3b
+ 1353 005f 0B       		.uleb128 0xb
+ 1354 0060 49       		.uleb128 0x49
+ 1355 0061 13       		.uleb128 0x13
+ 1356 0062 02       		.uleb128 0x2
+ 1357 0063 17       		.uleb128 0x17
+ 1358 0064 00       		.byte	0
+ 1359 0065 00       		.byte	0
+ 1360 0066 08       		.uleb128 0x8
+ 1361 0067 898201   		.uleb128 0x4109
+ 1362 006a 01       		.byte	0x1
+ 1363 006b 11       		.uleb128 0x11
+ 1364 006c 01       		.uleb128 0x1
+ 1365 006d 31       		.uleb128 0x31
+ 1366 006e 13       		.uleb128 0x13
+ 1367 006f 00       		.byte	0
+ 1368 0070 00       		.byte	0
+ 1369 0071 09       		.uleb128 0x9
+ 1370 0072 8A8201   		.uleb128 0x410a
+ 1371 0075 00       		.byte	0
+ 1372 0076 02       		.uleb128 0x2
+ 1373 0077 18       		.uleb128 0x18
+ 1374 0078 9142     		.uleb128 0x2111
+ 1375 007a 18       		.uleb128 0x18
+ 1376 007b 00       		.byte	0
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 32
 
 
- 1438 00cc 17       		.uleb128 0x17
- 1439 00cd 00       		.byte	0
- 1440 00ce 00       		.byte	0
- 1441 00cf 0F       		.uleb128 0xf
- 1442 00d0 34       		.uleb128 0x34
- 1443 00d1 00       		.byte	0
- 1444 00d2 03       		.uleb128 0x3
- 1445 00d3 0E       		.uleb128 0xe
- 1446 00d4 3A       		.uleb128 0x3a
- 1447 00d5 0B       		.uleb128 0xb
- 1448 00d6 3B       		.uleb128 0x3b
- 1449 00d7 0B       		.uleb128 0xb
- 1450 00d8 49       		.uleb128 0x49
- 1451 00d9 13       		.uleb128 0x13
- 1452 00da 02       		.uleb128 0x2
- 1453 00db 18       		.uleb128 0x18
- 1454 00dc 00       		.byte	0
- 1455 00dd 00       		.byte	0
- 1456 00de 10       		.uleb128 0x10
- 1457 00df 34       		.uleb128 0x34
- 1458 00e0 00       		.byte	0
- 1459 00e1 03       		.uleb128 0x3
- 1460 00e2 0E       		.uleb128 0xe
- 1461 00e3 3A       		.uleb128 0x3a
- 1462 00e4 0B       		.uleb128 0xb
- 1463 00e5 3B       		.uleb128 0x3b
- 1464 00e6 0B       		.uleb128 0xb
- 1465 00e7 49       		.uleb128 0x49
- 1466 00e8 13       		.uleb128 0x13
- 1467 00e9 02       		.uleb128 0x2
- 1468 00ea 17       		.uleb128 0x17
- 1469 00eb 00       		.byte	0
- 1470 00ec 00       		.byte	0
- 1471 00ed 11       		.uleb128 0x11
- 1472 00ee 898201   		.uleb128 0x4109
- 1473 00f1 00       		.byte	0
- 1474 00f2 11       		.uleb128 0x11
- 1475 00f3 01       		.uleb128 0x1
- 1476 00f4 31       		.uleb128 0x31
- 1477 00f5 13       		.uleb128 0x13
- 1478 00f6 00       		.byte	0
- 1479 00f7 00       		.byte	0
- 1480 00f8 12       		.uleb128 0x12
- 1481 00f9 2E       		.uleb128 0x2e
- 1482 00fa 01       		.byte	0x1
- 1483 00fb 3F       		.uleb128 0x3f
- 1484 00fc 19       		.uleb128 0x19
- 1485 00fd 03       		.uleb128 0x3
- 1486 00fe 0E       		.uleb128 0xe
- 1487 00ff 3A       		.uleb128 0x3a
- 1488 0100 0B       		.uleb128 0xb
- 1489 0101 3B       		.uleb128 0x3b
- 1490 0102 0B       		.uleb128 0xb
- 1491 0103 49       		.uleb128 0x49
- 1492 0104 13       		.uleb128 0x13
- 1493 0105 11       		.uleb128 0x11
- 1494 0106 01       		.uleb128 0x1
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 32
+ 1377 007c 00       		.byte	0
+ 1378 007d 0A       		.uleb128 0xa
+ 1379 007e 05       		.uleb128 0x5
+ 1380 007f 00       		.byte	0
+ 1381 0080 03       		.uleb128 0x3
+ 1382 0081 0E       		.uleb128 0xe
+ 1383 0082 3A       		.uleb128 0x3a
+ 1384 0083 0B       		.uleb128 0xb
+ 1385 0084 3B       		.uleb128 0x3b
+ 1386 0085 0B       		.uleb128 0xb
+ 1387 0086 49       		.uleb128 0x49
+ 1388 0087 13       		.uleb128 0x13
+ 1389 0088 02       		.uleb128 0x2
+ 1390 0089 17       		.uleb128 0x17
+ 1391 008a 00       		.byte	0
+ 1392 008b 00       		.byte	0
+ 1393 008c 0B       		.uleb128 0xb
+ 1394 008d 34       		.uleb128 0x34
+ 1395 008e 00       		.byte	0
+ 1396 008f 03       		.uleb128 0x3
+ 1397 0090 08       		.uleb128 0x8
+ 1398 0091 3A       		.uleb128 0x3a
+ 1399 0092 0B       		.uleb128 0xb
+ 1400 0093 3B       		.uleb128 0x3b
+ 1401 0094 0B       		.uleb128 0xb
+ 1402 0095 49       		.uleb128 0x49
+ 1403 0096 13       		.uleb128 0x13
+ 1404 0097 02       		.uleb128 0x2
+ 1405 0098 18       		.uleb128 0x18
+ 1406 0099 00       		.byte	0
+ 1407 009a 00       		.byte	0
+ 1408 009b 0C       		.uleb128 0xc
+ 1409 009c 898201   		.uleb128 0x4109
+ 1410 009f 01       		.byte	0x1
+ 1411 00a0 11       		.uleb128 0x11
+ 1412 00a1 01       		.uleb128 0x1
+ 1413 00a2 31       		.uleb128 0x31
+ 1414 00a3 13       		.uleb128 0x13
+ 1415 00a4 01       		.uleb128 0x1
+ 1416 00a5 13       		.uleb128 0x13
+ 1417 00a6 00       		.byte	0
+ 1418 00a7 00       		.byte	0
+ 1419 00a8 0D       		.uleb128 0xd
+ 1420 00a9 01       		.uleb128 0x1
+ 1421 00aa 01       		.byte	0x1
+ 1422 00ab 49       		.uleb128 0x49
+ 1423 00ac 13       		.uleb128 0x13
+ 1424 00ad 01       		.uleb128 0x1
+ 1425 00ae 13       		.uleb128 0x13
+ 1426 00af 00       		.byte	0
+ 1427 00b0 00       		.byte	0
+ 1428 00b1 0E       		.uleb128 0xe
+ 1429 00b2 21       		.uleb128 0x21
+ 1430 00b3 00       		.byte	0
+ 1431 00b4 49       		.uleb128 0x49
+ 1432 00b5 13       		.uleb128 0x13
+ 1433 00b6 2F       		.uleb128 0x2f
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 33
 
 
- 1495 0107 12       		.uleb128 0x12
- 1496 0108 06       		.uleb128 0x6
- 1497 0109 40       		.uleb128 0x40
- 1498 010a 18       		.uleb128 0x18
- 1499 010b 9642     		.uleb128 0x2116
- 1500 010d 19       		.uleb128 0x19
- 1501 010e 01       		.uleb128 0x1
- 1502 010f 13       		.uleb128 0x13
- 1503 0110 00       		.byte	0
- 1504 0111 00       		.byte	0
- 1505 0112 13       		.uleb128 0x13
- 1506 0113 2E       		.uleb128 0x2e
- 1507 0114 01       		.byte	0x1
- 1508 0115 3F       		.uleb128 0x3f
- 1509 0116 19       		.uleb128 0x19
- 1510 0117 03       		.uleb128 0x3
- 1511 0118 0E       		.uleb128 0xe
- 1512 0119 3A       		.uleb128 0x3a
- 1513 011a 0B       		.uleb128 0xb
- 1514 011b 3B       		.uleb128 0x3b
- 1515 011c 0B       		.uleb128 0xb
- 1516 011d 11       		.uleb128 0x11
- 1517 011e 01       		.uleb128 0x1
- 1518 011f 12       		.uleb128 0x12
- 1519 0120 06       		.uleb128 0x6
- 1520 0121 40       		.uleb128 0x40
- 1521 0122 18       		.uleb128 0x18
- 1522 0123 9642     		.uleb128 0x2116
- 1523 0125 19       		.uleb128 0x19
- 1524 0126 01       		.uleb128 0x1
- 1525 0127 13       		.uleb128 0x13
- 1526 0128 00       		.byte	0
- 1527 0129 00       		.byte	0
- 1528 012a 14       		.uleb128 0x14
- 1529 012b 2E       		.uleb128 0x2e
- 1530 012c 01       		.byte	0x1
- 1531 012d 3F       		.uleb128 0x3f
- 1532 012e 19       		.uleb128 0x19
- 1533 012f 03       		.uleb128 0x3
- 1534 0130 0E       		.uleb128 0xe
- 1535 0131 3A       		.uleb128 0x3a
- 1536 0132 0B       		.uleb128 0xb
- 1537 0133 3B       		.uleb128 0x3b
- 1538 0134 0B       		.uleb128 0xb
- 1539 0135 27       		.uleb128 0x27
- 1540 0136 19       		.uleb128 0x19
- 1541 0137 11       		.uleb128 0x11
- 1542 0138 01       		.uleb128 0x1
- 1543 0139 12       		.uleb128 0x12
- 1544 013a 06       		.uleb128 0x6
- 1545 013b 40       		.uleb128 0x40
- 1546 013c 18       		.uleb128 0x18
- 1547 013d 9642     		.uleb128 0x2116
- 1548 013f 19       		.uleb128 0x19
- 1549 0140 01       		.uleb128 0x1
- 1550 0141 13       		.uleb128 0x13
- 1551 0142 00       		.byte	0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 33
+ 1434 00b7 0B       		.uleb128 0xb
+ 1435 00b8 00       		.byte	0
+ 1436 00b9 00       		.byte	0
+ 1437 00ba 0F       		.uleb128 0xf
+ 1438 00bb 2E       		.uleb128 0x2e
+ 1439 00bc 01       		.byte	0x1
+ 1440 00bd 3F       		.uleb128 0x3f
+ 1441 00be 19       		.uleb128 0x19
+ 1442 00bf 03       		.uleb128 0x3
+ 1443 00c0 0E       		.uleb128 0xe
+ 1444 00c1 3A       		.uleb128 0x3a
+ 1445 00c2 0B       		.uleb128 0xb
+ 1446 00c3 3B       		.uleb128 0x3b
+ 1447 00c4 0B       		.uleb128 0xb
+ 1448 00c5 27       		.uleb128 0x27
+ 1449 00c6 19       		.uleb128 0x19
+ 1450 00c7 49       		.uleb128 0x49
+ 1451 00c8 13       		.uleb128 0x13
+ 1452 00c9 11       		.uleb128 0x11
+ 1453 00ca 01       		.uleb128 0x1
+ 1454 00cb 12       		.uleb128 0x12
+ 1455 00cc 06       		.uleb128 0x6
+ 1456 00cd 40       		.uleb128 0x40
+ 1457 00ce 18       		.uleb128 0x18
+ 1458 00cf 9742     		.uleb128 0x2117
+ 1459 00d1 19       		.uleb128 0x19
+ 1460 00d2 01       		.uleb128 0x1
+ 1461 00d3 13       		.uleb128 0x13
+ 1462 00d4 00       		.byte	0
+ 1463 00d5 00       		.byte	0
+ 1464 00d6 10       		.uleb128 0x10
+ 1465 00d7 05       		.uleb128 0x5
+ 1466 00d8 00       		.byte	0
+ 1467 00d9 03       		.uleb128 0x3
+ 1468 00da 08       		.uleb128 0x8
+ 1469 00db 3A       		.uleb128 0x3a
+ 1470 00dc 0B       		.uleb128 0xb
+ 1471 00dd 3B       		.uleb128 0x3b
+ 1472 00de 0B       		.uleb128 0xb
+ 1473 00df 49       		.uleb128 0x49
+ 1474 00e0 13       		.uleb128 0x13
+ 1475 00e1 02       		.uleb128 0x2
+ 1476 00e2 17       		.uleb128 0x17
+ 1477 00e3 00       		.byte	0
+ 1478 00e4 00       		.byte	0
+ 1479 00e5 11       		.uleb128 0x11
+ 1480 00e6 34       		.uleb128 0x34
+ 1481 00e7 00       		.byte	0
+ 1482 00e8 03       		.uleb128 0x3
+ 1483 00e9 0E       		.uleb128 0xe
+ 1484 00ea 3A       		.uleb128 0x3a
+ 1485 00eb 0B       		.uleb128 0xb
+ 1486 00ec 3B       		.uleb128 0x3b
+ 1487 00ed 0B       		.uleb128 0xb
+ 1488 00ee 49       		.uleb128 0x49
+ 1489 00ef 13       		.uleb128 0x13
+ 1490 00f0 02       		.uleb128 0x2
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 34
 
 
- 1552 0143 00       		.byte	0
- 1553 0144 15       		.uleb128 0x15
- 1554 0145 2E       		.uleb128 0x2e
- 1555 0146 01       		.byte	0x1
- 1556 0147 3F       		.uleb128 0x3f
- 1557 0148 19       		.uleb128 0x19
- 1558 0149 03       		.uleb128 0x3
- 1559 014a 0E       		.uleb128 0xe
- 1560 014b 3A       		.uleb128 0x3a
- 1561 014c 0B       		.uleb128 0xb
- 1562 014d 3B       		.uleb128 0x3b
- 1563 014e 0B       		.uleb128 0xb
- 1564 014f 49       		.uleb128 0x49
- 1565 0150 13       		.uleb128 0x13
- 1566 0151 8701     		.uleb128 0x87
- 1567 0153 19       		.uleb128 0x19
- 1568 0154 11       		.uleb128 0x11
- 1569 0155 01       		.uleb128 0x1
- 1570 0156 12       		.uleb128 0x12
- 1571 0157 06       		.uleb128 0x6
- 1572 0158 40       		.uleb128 0x40
- 1573 0159 18       		.uleb128 0x18
- 1574 015a 9742     		.uleb128 0x2117
- 1575 015c 19       		.uleb128 0x19
- 1576 015d 01       		.uleb128 0x1
- 1577 015e 13       		.uleb128 0x13
- 1578 015f 00       		.byte	0
- 1579 0160 00       		.byte	0
- 1580 0161 16       		.uleb128 0x16
- 1581 0162 2E       		.uleb128 0x2e
- 1582 0163 00       		.byte	0
- 1583 0164 3F       		.uleb128 0x3f
- 1584 0165 19       		.uleb128 0x19
- 1585 0166 3C       		.uleb128 0x3c
- 1586 0167 19       		.uleb128 0x19
- 1587 0168 6E       		.uleb128 0x6e
- 1588 0169 0E       		.uleb128 0xe
- 1589 016a 03       		.uleb128 0x3
- 1590 016b 0E       		.uleb128 0xe
- 1591 016c 3A       		.uleb128 0x3a
- 1592 016d 0B       		.uleb128 0xb
- 1593 016e 3B       		.uleb128 0x3b
- 1594 016f 0B       		.uleb128 0xb
- 1595 0170 00       		.byte	0
- 1596 0171 00       		.byte	0
- 1597 0172 17       		.uleb128 0x17
- 1598 0173 2E       		.uleb128 0x2e
- 1599 0174 00       		.byte	0
- 1600 0175 3F       		.uleb128 0x3f
- 1601 0176 19       		.uleb128 0x19
- 1602 0177 3C       		.uleb128 0x3c
- 1603 0178 19       		.uleb128 0x19
- 1604 0179 6E       		.uleb128 0x6e
- 1605 017a 0E       		.uleb128 0xe
- 1606 017b 03       		.uleb128 0x3
- 1607 017c 0E       		.uleb128 0xe
- 1608 017d 3A       		.uleb128 0x3a
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 34
+ 1491 00f1 18       		.uleb128 0x18
+ 1492 00f2 00       		.byte	0
+ 1493 00f3 00       		.byte	0
+ 1494 00f4 12       		.uleb128 0x12
+ 1495 00f5 898201   		.uleb128 0x4109
+ 1496 00f8 00       		.byte	0
+ 1497 00f9 11       		.uleb128 0x11
+ 1498 00fa 01       		.uleb128 0x1
+ 1499 00fb 31       		.uleb128 0x31
+ 1500 00fc 13       		.uleb128 0x13
+ 1501 00fd 00       		.byte	0
+ 1502 00fe 00       		.byte	0
+ 1503 00ff 13       		.uleb128 0x13
+ 1504 0100 2E       		.uleb128 0x2e
+ 1505 0101 01       		.byte	0x1
+ 1506 0102 3F       		.uleb128 0x3f
+ 1507 0103 19       		.uleb128 0x19
+ 1508 0104 03       		.uleb128 0x3
+ 1509 0105 0E       		.uleb128 0xe
+ 1510 0106 3A       		.uleb128 0x3a
+ 1511 0107 0B       		.uleb128 0xb
+ 1512 0108 3B       		.uleb128 0x3b
+ 1513 0109 0B       		.uleb128 0xb
+ 1514 010a 49       		.uleb128 0x49
+ 1515 010b 13       		.uleb128 0x13
+ 1516 010c 11       		.uleb128 0x11
+ 1517 010d 01       		.uleb128 0x1
+ 1518 010e 12       		.uleb128 0x12
+ 1519 010f 06       		.uleb128 0x6
+ 1520 0110 40       		.uleb128 0x40
+ 1521 0111 18       		.uleb128 0x18
+ 1522 0112 9642     		.uleb128 0x2116
+ 1523 0114 19       		.uleb128 0x19
+ 1524 0115 01       		.uleb128 0x1
+ 1525 0116 13       		.uleb128 0x13
+ 1526 0117 00       		.byte	0
+ 1527 0118 00       		.byte	0
+ 1528 0119 14       		.uleb128 0x14
+ 1529 011a 2E       		.uleb128 0x2e
+ 1530 011b 01       		.byte	0x1
+ 1531 011c 3F       		.uleb128 0x3f
+ 1532 011d 19       		.uleb128 0x19
+ 1533 011e 03       		.uleb128 0x3
+ 1534 011f 0E       		.uleb128 0xe
+ 1535 0120 3A       		.uleb128 0x3a
+ 1536 0121 0B       		.uleb128 0xb
+ 1537 0122 3B       		.uleb128 0x3b
+ 1538 0123 0B       		.uleb128 0xb
+ 1539 0124 11       		.uleb128 0x11
+ 1540 0125 01       		.uleb128 0x1
+ 1541 0126 12       		.uleb128 0x12
+ 1542 0127 06       		.uleb128 0x6
+ 1543 0128 40       		.uleb128 0x40
+ 1544 0129 18       		.uleb128 0x18
+ 1545 012a 9642     		.uleb128 0x2116
+ 1546 012c 19       		.uleb128 0x19
+ 1547 012d 01       		.uleb128 0x1
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 35
 
 
- 1609 017e 0B       		.uleb128 0xb
- 1610 017f 3B       		.uleb128 0x3b
- 1611 0180 05       		.uleb128 0x5
- 1612 0181 00       		.byte	0
- 1613 0182 00       		.byte	0
- 1614 0183 00       		.byte	0
- 1615              		.section	.debug_loc,"",%progbits
- 1616              	.Ldebug_loc0:
- 1617              	.LLST0:
- 1618 0000 00000000 		.4byte	.LVL0
- 1619 0004 0C000000 		.4byte	.LVL2
- 1620 0008 0100     		.2byte	0x1
- 1621 000a 50       		.byte	0x50
- 1622 000b 0C000000 		.4byte	.LVL2
- 1623 000f 0F000000 		.4byte	.LVL3-1
- 1624 0013 0100     		.2byte	0x1
- 1625 0015 52       		.byte	0x52
- 1626 0016 0F000000 		.4byte	.LVL3-1
- 1627 001a 20000000 		.4byte	.LFE33
- 1628 001e 0400     		.2byte	0x4
- 1629 0020 F3       		.byte	0xf3
- 1630 0021 01       		.uleb128 0x1
- 1631 0022 50       		.byte	0x50
- 1632 0023 9F       		.byte	0x9f
- 1633 0024 00000000 		.4byte	0
- 1634 0028 00000000 		.4byte	0
- 1635              	.LLST1:
- 1636 002c 00000000 		.4byte	.LVL0
- 1637 0030 0A000000 		.4byte	.LVL1
- 1638 0034 0100     		.2byte	0x1
- 1639 0036 51       		.byte	0x51
- 1640 0037 0A000000 		.4byte	.LVL1
- 1641 003b 0F000000 		.4byte	.LVL3-1
- 1642 003f 0100     		.2byte	0x1
- 1643 0041 53       		.byte	0x53
- 1644 0042 0F000000 		.4byte	.LVL3-1
- 1645 0046 20000000 		.4byte	.LFE33
- 1646 004a 0400     		.2byte	0x4
- 1647 004c F3       		.byte	0xf3
- 1648 004d 01       		.uleb128 0x1
- 1649 004e 51       		.byte	0x51
- 1650 004f 9F       		.byte	0x9f
- 1651 0050 00000000 		.4byte	0
- 1652 0054 00000000 		.4byte	0
- 1653              	.LLST2:
- 1654 0058 00000000 		.4byte	.LVL5
- 1655 005c 0B000000 		.4byte	.LVL7-1
- 1656 0060 0100     		.2byte	0x1
- 1657 0062 50       		.byte	0x50
- 1658 0063 0B000000 		.4byte	.LVL7-1
- 1659 0067 46000000 		.4byte	.LFE34
- 1660 006b 0400     		.2byte	0x4
- 1661 006d F3       		.byte	0xf3
- 1662 006e 01       		.uleb128 0x1
- 1663 006f 50       		.byte	0x50
- 1664 0070 9F       		.byte	0x9f
- 1665 0071 00000000 		.4byte	0
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 35
+ 1548 012e 13       		.uleb128 0x13
+ 1549 012f 00       		.byte	0
+ 1550 0130 00       		.byte	0
+ 1551 0131 15       		.uleb128 0x15
+ 1552 0132 2E       		.uleb128 0x2e
+ 1553 0133 01       		.byte	0x1
+ 1554 0134 3F       		.uleb128 0x3f
+ 1555 0135 19       		.uleb128 0x19
+ 1556 0136 03       		.uleb128 0x3
+ 1557 0137 0E       		.uleb128 0xe
+ 1558 0138 3A       		.uleb128 0x3a
+ 1559 0139 0B       		.uleb128 0xb
+ 1560 013a 3B       		.uleb128 0x3b
+ 1561 013b 05       		.uleb128 0x5
+ 1562 013c 49       		.uleb128 0x49
+ 1563 013d 13       		.uleb128 0x13
+ 1564 013e 8701     		.uleb128 0x87
+ 1565 0140 19       		.uleb128 0x19
+ 1566 0141 11       		.uleb128 0x11
+ 1567 0142 01       		.uleb128 0x1
+ 1568 0143 12       		.uleb128 0x12
+ 1569 0144 06       		.uleb128 0x6
+ 1570 0145 40       		.uleb128 0x40
+ 1571 0146 18       		.uleb128 0x18
+ 1572 0147 9642     		.uleb128 0x2116
+ 1573 0149 19       		.uleb128 0x19
+ 1574 014a 01       		.uleb128 0x1
+ 1575 014b 13       		.uleb128 0x13
+ 1576 014c 00       		.byte	0
+ 1577 014d 00       		.byte	0
+ 1578 014e 16       		.uleb128 0x16
+ 1579 014f 34       		.uleb128 0x34
+ 1580 0150 00       		.byte	0
+ 1581 0151 03       		.uleb128 0x3
+ 1582 0152 08       		.uleb128 0x8
+ 1583 0153 3A       		.uleb128 0x3a
+ 1584 0154 0B       		.uleb128 0xb
+ 1585 0155 3B       		.uleb128 0x3b
+ 1586 0156 05       		.uleb128 0x5
+ 1587 0157 49       		.uleb128 0x49
+ 1588 0158 13       		.uleb128 0x13
+ 1589 0159 02       		.uleb128 0x2
+ 1590 015a 17       		.uleb128 0x17
+ 1591 015b 00       		.byte	0
+ 1592 015c 00       		.byte	0
+ 1593 015d 17       		.uleb128 0x17
+ 1594 015e 34       		.uleb128 0x34
+ 1595 015f 00       		.byte	0
+ 1596 0160 03       		.uleb128 0x3
+ 1597 0161 0E       		.uleb128 0xe
+ 1598 0162 3A       		.uleb128 0x3a
+ 1599 0163 0B       		.uleb128 0xb
+ 1600 0164 3B       		.uleb128 0x3b
+ 1601 0165 05       		.uleb128 0x5
+ 1602 0166 49       		.uleb128 0x49
+ 1603 0167 13       		.uleb128 0x13
+ 1604 0168 02       		.uleb128 0x2
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 36
 
 
- 1666 0075 00000000 		.4byte	0
- 1667              	.LLST3:
- 1668 0079 04000000 		.4byte	.LVL6
- 1669 007d 42000000 		.4byte	.LVL12
- 1670 0081 0300     		.2byte	0x3
- 1671 0083 08       		.byte	0x8
- 1672 0084 FF       		.byte	0xff
- 1673 0085 9F       		.byte	0x9f
- 1674 0086 42000000 		.4byte	.LVL12
- 1675 008a 46000000 		.4byte	.LFE34
- 1676 008e 0100     		.2byte	0x1
- 1677 0090 50       		.byte	0x50
- 1678 0091 00000000 		.4byte	0
- 1679 0095 00000000 		.4byte	0
- 1680              	.LLST4:
- 1681 0099 00000000 		.4byte	.LVL13
- 1682 009d 07000000 		.4byte	.LVL14-1
- 1683 00a1 0100     		.2byte	0x1
- 1684 00a3 50       		.byte	0x50
- 1685 00a4 07000000 		.4byte	.LVL14-1
- 1686 00a8 3A000000 		.4byte	.LFE35
- 1687 00ac 0400     		.2byte	0x4
- 1688 00ae F3       		.byte	0xf3
- 1689 00af 01       		.uleb128 0x1
- 1690 00b0 50       		.byte	0x50
- 1691 00b1 9F       		.byte	0x9f
- 1692 00b2 00000000 		.4byte	0
- 1693 00b6 00000000 		.4byte	0
- 1694              	.LLST5:
- 1695 00ba 08000000 		.4byte	.LVL14
- 1696 00be 2A000000 		.4byte	.LVL18
- 1697 00c2 0200     		.2byte	0x2
- 1698 00c4 30       		.byte	0x30
- 1699 00c5 9F       		.byte	0x9f
- 1700 00c6 2A000000 		.4byte	.LVL18
- 1701 00ca 34000000 		.4byte	.LVL21
- 1702 00ce 0100     		.2byte	0x1
- 1703 00d0 50       		.byte	0x50
- 1704 00d1 34000000 		.4byte	.LVL21
- 1705 00d5 36000000 		.4byte	.LVL22
- 1706 00d9 0200     		.2byte	0x2
- 1707 00db 30       		.byte	0x30
- 1708 00dc 9F       		.byte	0x9f
- 1709 00dd 36000000 		.4byte	.LVL22
- 1710 00e1 3A000000 		.4byte	.LFE35
- 1711 00e5 0100     		.2byte	0x1
- 1712 00e7 50       		.byte	0x50
- 1713 00e8 00000000 		.4byte	0
- 1714 00ec 00000000 		.4byte	0
- 1715              	.LLST6:
- 1716 00f0 02000000 		.4byte	.LVL35
- 1717 00f4 0C000000 		.4byte	.LVL38
- 1718 00f8 0200     		.2byte	0x2
- 1719 00fa 30       		.byte	0x30
- 1720 00fb 9F       		.byte	0x9f
- 1721 00fc 0C000000 		.4byte	.LVL38
- 1722 0100 0F000000 		.4byte	.LVL39-1
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 36
+ 1605 0169 18       		.uleb128 0x18
+ 1606 016a 00       		.byte	0
+ 1607 016b 00       		.byte	0
+ 1608 016c 18       		.uleb128 0x18
+ 1609 016d 34       		.uleb128 0x34
+ 1610 016e 00       		.byte	0
+ 1611 016f 03       		.uleb128 0x3
+ 1612 0170 0E       		.uleb128 0xe
+ 1613 0171 3A       		.uleb128 0x3a
+ 1614 0172 0B       		.uleb128 0xb
+ 1615 0173 3B       		.uleb128 0x3b
+ 1616 0174 0B       		.uleb128 0xb
+ 1617 0175 49       		.uleb128 0x49
+ 1618 0176 13       		.uleb128 0x13
+ 1619 0177 3F       		.uleb128 0x3f
+ 1620 0178 19       		.uleb128 0x19
+ 1621 0179 02       		.uleb128 0x2
+ 1622 017a 18       		.uleb128 0x18
+ 1623 017b 00       		.byte	0
+ 1624 017c 00       		.byte	0
+ 1625 017d 19       		.uleb128 0x19
+ 1626 017e 2E       		.uleb128 0x2e
+ 1627 017f 00       		.byte	0
+ 1628 0180 3F       		.uleb128 0x3f
+ 1629 0181 19       		.uleb128 0x19
+ 1630 0182 3C       		.uleb128 0x3c
+ 1631 0183 19       		.uleb128 0x19
+ 1632 0184 6E       		.uleb128 0x6e
+ 1633 0185 0E       		.uleb128 0xe
+ 1634 0186 03       		.uleb128 0x3
+ 1635 0187 0E       		.uleb128 0xe
+ 1636 0188 3A       		.uleb128 0x3a
+ 1637 0189 0B       		.uleb128 0xb
+ 1638 018a 3B       		.uleb128 0x3b
+ 1639 018b 0B       		.uleb128 0xb
+ 1640 018c 00       		.byte	0
+ 1641 018d 00       		.byte	0
+ 1642 018e 1A       		.uleb128 0x1a
+ 1643 018f 2E       		.uleb128 0x2e
+ 1644 0190 00       		.byte	0
+ 1645 0191 3F       		.uleb128 0x3f
+ 1646 0192 19       		.uleb128 0x19
+ 1647 0193 3C       		.uleb128 0x3c
+ 1648 0194 19       		.uleb128 0x19
+ 1649 0195 6E       		.uleb128 0x6e
+ 1650 0196 0E       		.uleb128 0xe
+ 1651 0197 03       		.uleb128 0x3
+ 1652 0198 0E       		.uleb128 0xe
+ 1653 0199 3A       		.uleb128 0x3a
+ 1654 019a 0B       		.uleb128 0xb
+ 1655 019b 3B       		.uleb128 0x3b
+ 1656 019c 05       		.uleb128 0x5
+ 1657 019d 00       		.byte	0
+ 1658 019e 00       		.byte	0
+ 1659 019f 00       		.byte	0
+ 1660              		.section	.debug_loc,"",%progbits
+ 1661              	.Ldebug_loc0:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 37
 
 
- 1723 0104 0100     		.2byte	0x1
- 1724 0106 50       		.byte	0x50
- 1725 0107 0F000000 		.4byte	.LVL39-1
- 1726 010b 1A000000 		.4byte	.LVL42
- 1727 010f 0100     		.2byte	0x1
- 1728 0111 54       		.byte	0x54
- 1729 0112 00000000 		.4byte	0
- 1730 0116 00000000 		.4byte	0
- 1731              	.LLST7:
- 1732 011a 02000000 		.4byte	.LVL35
- 1733 011e 14000000 		.4byte	.LVL40
- 1734 0122 0200     		.2byte	0x2
- 1735 0124 30       		.byte	0x30
- 1736 0125 9F       		.byte	0x9f
- 1737 0126 14000000 		.4byte	.LVL40
- 1738 012a 19000000 		.4byte	.LVL41-1
- 1739 012e 0100     		.2byte	0x1
- 1740 0130 50       		.byte	0x50
- 1741 0131 00000000 		.4byte	0
- 1742 0135 00000000 		.4byte	0
- 1743              	.LLST8:
- 1744 0139 00000000 		.4byte	.LVL43
- 1745 013d 0A000000 		.4byte	.LVL44
- 1746 0141 0100     		.2byte	0x1
- 1747 0143 50       		.byte	0x50
- 1748 0144 0A000000 		.4byte	.LVL44
- 1749 0148 0D000000 		.4byte	.LVL45-1
- 1750 014c 0100     		.2byte	0x1
- 1751 014e 52       		.byte	0x52
- 1752 014f 0D000000 		.4byte	.LVL45-1
- 1753 0153 1C000000 		.4byte	.LFE39
- 1754 0157 0400     		.2byte	0x4
- 1755 0159 F3       		.byte	0xf3
- 1756 015a 01       		.uleb128 0x1
- 1757 015b 50       		.byte	0x50
- 1758 015c 9F       		.byte	0x9f
- 1759 015d 00000000 		.4byte	0
- 1760 0161 00000000 		.4byte	0
- 1761              	.LLST9:
- 1762 0165 08000000 		.4byte	.LVL49
- 1763 0169 0A000000 		.4byte	.LVL50
- 1764 016d 0100     		.2byte	0x1
- 1765 016f 50       		.byte	0x50
- 1766 0170 0A000000 		.4byte	.LVL50
- 1767 0174 2A000000 		.4byte	.LVL57
- 1768 0178 0100     		.2byte	0x1
- 1769 017a 54       		.byte	0x54
- 1770 017b 00000000 		.4byte	0
- 1771 017f 00000000 		.4byte	0
- 1772              	.LLST10:
- 1773 0183 02000000 		.4byte	.LVL47
- 1774 0187 18000000 		.4byte	.LVL53
- 1775 018b 0600     		.2byte	0x6
- 1776 018d 9E       		.byte	0x9e
- 1777 018e 04       		.uleb128 0x4
- 1778 018f 00000000 		.4byte	0
- 1779 0193 18000000 		.4byte	.LVL53
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 37
+ 1662              	.LLST0:
+ 1663 0000 06000000 		.4byte	.LVL0
+ 1664 0004 2E000000 		.4byte	.LVL4
+ 1665 0008 0100     		.2byte	0x1
+ 1666 000a 54       		.byte	0x54
+ 1667 000b 2E000000 		.4byte	.LVL4
+ 1668 000f 48000000 		.4byte	.LFE40
+ 1669 0013 0200     		.2byte	0x2
+ 1670 0015 73       		.byte	0x73
+ 1671 0016 00       		.sleb128 0
+ 1672 0017 00000000 		.4byte	0
+ 1673 001b 00000000 		.4byte	0
+ 1674              	.LLST1:
+ 1675 001f 0E000000 		.4byte	.LVL1
+ 1676 0023 2A000000 		.4byte	.LVL3
+ 1677 0027 0100     		.2byte	0x1
+ 1678 0029 55       		.byte	0x55
+ 1679 002a 00000000 		.4byte	0
+ 1680 002e 00000000 		.4byte	0
+ 1681              	.LLST2:
+ 1682 0032 00000000 		.4byte	.LVL5
+ 1683 0036 0C000000 		.4byte	.LVL7
+ 1684 003a 0100     		.2byte	0x1
+ 1685 003c 50       		.byte	0x50
+ 1686 003d 0C000000 		.4byte	.LVL7
+ 1687 0041 0F000000 		.4byte	.LVL8-1
+ 1688 0045 0100     		.2byte	0x1
+ 1689 0047 52       		.byte	0x52
+ 1690 0048 0F000000 		.4byte	.LVL8-1
+ 1691 004c 20000000 		.4byte	.LFE33
+ 1692 0050 0400     		.2byte	0x4
+ 1693 0052 F3       		.byte	0xf3
+ 1694 0053 01       		.uleb128 0x1
+ 1695 0054 50       		.byte	0x50
+ 1696 0055 9F       		.byte	0x9f
+ 1697 0056 00000000 		.4byte	0
+ 1698 005a 00000000 		.4byte	0
+ 1699              	.LLST3:
+ 1700 005e 00000000 		.4byte	.LVL5
+ 1701 0062 0A000000 		.4byte	.LVL6
+ 1702 0066 0100     		.2byte	0x1
+ 1703 0068 51       		.byte	0x51
+ 1704 0069 0A000000 		.4byte	.LVL6
+ 1705 006d 0F000000 		.4byte	.LVL8-1
+ 1706 0071 0100     		.2byte	0x1
+ 1707 0073 53       		.byte	0x53
+ 1708 0074 0F000000 		.4byte	.LVL8-1
+ 1709 0078 20000000 		.4byte	.LFE33
+ 1710 007c 0400     		.2byte	0x4
+ 1711 007e F3       		.byte	0xf3
+ 1712 007f 01       		.uleb128 0x1
+ 1713 0080 51       		.byte	0x51
+ 1714 0081 9F       		.byte	0x9f
+ 1715 0082 00000000 		.4byte	0
+ 1716 0086 00000000 		.4byte	0
+ 1717              	.LLST4:
+ 1718 008a 00000000 		.4byte	.LVL10
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 38
 
 
- 1780 0197 1B000000 		.4byte	.LVL54-1
- 1781 019b 0100     		.2byte	0x1
- 1782 019d 50       		.byte	0x50
- 1783 019e 2A000000 		.4byte	.LVL57
- 1784 01a2 2F000000 		.4byte	.LVL58-1
- 1785 01a6 0100     		.2byte	0x1
- 1786 01a8 50       		.byte	0x50
- 1787 01a9 2F000000 		.4byte	.LVL58-1
- 1788 01ad 50000000 		.4byte	.LVL63
- 1789 01b1 0100     		.2byte	0x1
- 1790 01b3 54       		.byte	0x54
- 1791 01b4 50000000 		.4byte	.LVL63
- 1792 01b8 55000000 		.4byte	.LVL64-1
- 1793 01bc 0100     		.2byte	0x1
- 1794 01be 50       		.byte	0x50
- 1795 01bf 55000000 		.4byte	.LVL64-1
- 1796 01c3 70000000 		.4byte	.LVL68
- 1797 01c7 0100     		.2byte	0x1
- 1798 01c9 54       		.byte	0x54
- 1799 01ca 00000000 		.4byte	0
- 1800 01ce 00000000 		.4byte	0
- 1801              		.section	.debug_aranges,"",%progbits
- 1802 0000 64000000 		.4byte	0x64
- 1803 0004 0200     		.2byte	0x2
- 1804 0006 00000000 		.4byte	.Ldebug_info0
- 1805 000a 04       		.byte	0x4
- 1806 000b 00       		.byte	0
- 1807 000c 0000     		.2byte	0
- 1808 000e 0000     		.2byte	0
- 1809 0010 00000000 		.4byte	.LFB33
- 1810 0014 20000000 		.4byte	.LFE33-.LFB33
- 1811 0018 00000000 		.4byte	.LFB34
- 1812 001c 46000000 		.4byte	.LFE34-.LFB34
- 1813 0020 00000000 		.4byte	.LFB35
- 1814 0024 3A000000 		.4byte	.LFE35-.LFB35
- 1815 0028 00000000 		.4byte	.LFB36
- 1816 002c 38000000 		.4byte	.LFE36-.LFB36
- 1817 0030 00000000 		.4byte	.LFB37
- 1818 0034 30000000 		.4byte	.LFE37-.LFB37
- 1819 0038 00000000 		.4byte	.LFB38
- 1820 003c 1C000000 		.4byte	.LFE38-.LFB38
- 1821 0040 00000000 		.4byte	.LFB39
- 1822 0044 1C000000 		.4byte	.LFE39-.LFB39
- 1823 0048 00000000 		.4byte	.LFB40
- 1824 004c 88000000 		.4byte	.LFE40-.LFB40
- 1825 0050 00000000 		.4byte	.LFB41
- 1826 0054 0A000000 		.4byte	.LFE41-.LFB41
- 1827 0058 00000000 		.4byte	.LFB42
- 1828 005c 2C000000 		.4byte	.LFE42-.LFB42
- 1829 0060 00000000 		.4byte	0
- 1830 0064 00000000 		.4byte	0
- 1831              		.section	.debug_ranges,"",%progbits
- 1832              	.Ldebug_ranges0:
- 1833 0000 00000000 		.4byte	.LFB33
- 1834 0004 20000000 		.4byte	.LFE33
- 1835 0008 00000000 		.4byte	.LFB34
- 1836 000c 46000000 		.4byte	.LFE34
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 38
+ 1719 008e 0B000000 		.4byte	.LVL12-1
+ 1720 0092 0100     		.2byte	0x1
+ 1721 0094 50       		.byte	0x50
+ 1722 0095 0B000000 		.4byte	.LVL12-1
+ 1723 0099 46000000 		.4byte	.LFE34
+ 1724 009d 0400     		.2byte	0x4
+ 1725 009f F3       		.byte	0xf3
+ 1726 00a0 01       		.uleb128 0x1
+ 1727 00a1 50       		.byte	0x50
+ 1728 00a2 9F       		.byte	0x9f
+ 1729 00a3 00000000 		.4byte	0
+ 1730 00a7 00000000 		.4byte	0
+ 1731              	.LLST5:
+ 1732 00ab 04000000 		.4byte	.LVL11
+ 1733 00af 42000000 		.4byte	.LVL17
+ 1734 00b3 0300     		.2byte	0x3
+ 1735 00b5 08       		.byte	0x8
+ 1736 00b6 FF       		.byte	0xff
+ 1737 00b7 9F       		.byte	0x9f
+ 1738 00b8 42000000 		.4byte	.LVL17
+ 1739 00bc 46000000 		.4byte	.LFE34
+ 1740 00c0 0100     		.2byte	0x1
+ 1741 00c2 50       		.byte	0x50
+ 1742 00c3 00000000 		.4byte	0
+ 1743 00c7 00000000 		.4byte	0
+ 1744              	.LLST6:
+ 1745 00cb 00000000 		.4byte	.LVL18
+ 1746 00cf 07000000 		.4byte	.LVL19-1
+ 1747 00d3 0100     		.2byte	0x1
+ 1748 00d5 50       		.byte	0x50
+ 1749 00d6 07000000 		.4byte	.LVL19-1
+ 1750 00da 3A000000 		.4byte	.LFE35
+ 1751 00de 0400     		.2byte	0x4
+ 1752 00e0 F3       		.byte	0xf3
+ 1753 00e1 01       		.uleb128 0x1
+ 1754 00e2 50       		.byte	0x50
+ 1755 00e3 9F       		.byte	0x9f
+ 1756 00e4 00000000 		.4byte	0
+ 1757 00e8 00000000 		.4byte	0
+ 1758              	.LLST7:
+ 1759 00ec 08000000 		.4byte	.LVL19
+ 1760 00f0 2A000000 		.4byte	.LVL23
+ 1761 00f4 0200     		.2byte	0x2
+ 1762 00f6 30       		.byte	0x30
+ 1763 00f7 9F       		.byte	0x9f
+ 1764 00f8 2A000000 		.4byte	.LVL23
+ 1765 00fc 34000000 		.4byte	.LVL26
+ 1766 0100 0100     		.2byte	0x1
+ 1767 0102 50       		.byte	0x50
+ 1768 0103 34000000 		.4byte	.LVL26
+ 1769 0107 36000000 		.4byte	.LVL27
+ 1770 010b 0200     		.2byte	0x2
+ 1771 010d 30       		.byte	0x30
+ 1772 010e 9F       		.byte	0x9f
+ 1773 010f 36000000 		.4byte	.LVL27
+ 1774 0113 3A000000 		.4byte	.LFE35
+ 1775 0117 0100     		.2byte	0x1
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 39
 
 
- 1837 0010 00000000 		.4byte	.LFB35
- 1838 0014 3A000000 		.4byte	.LFE35
- 1839 0018 00000000 		.4byte	.LFB36
- 1840 001c 38000000 		.4byte	.LFE36
- 1841 0020 00000000 		.4byte	.LFB37
- 1842 0024 30000000 		.4byte	.LFE37
- 1843 0028 00000000 		.4byte	.LFB38
- 1844 002c 1C000000 		.4byte	.LFE38
- 1845 0030 00000000 		.4byte	.LFB39
- 1846 0034 1C000000 		.4byte	.LFE39
- 1847 0038 00000000 		.4byte	.LFB40
- 1848 003c 88000000 		.4byte	.LFE40
- 1849 0040 00000000 		.4byte	.LFB41
- 1850 0044 0A000000 		.4byte	.LFE41
- 1851 0048 00000000 		.4byte	.LFB42
- 1852 004c 2C000000 		.4byte	.LFE42
- 1853 0050 00000000 		.4byte	0
- 1854 0054 00000000 		.4byte	0
- 1855              		.section	.debug_line,"",%progbits
- 1856              	.Ldebug_line0:
- 1857 0000 33020000 		.section	.debug_str,"MS",%progbits,1
- 1857      02003501 
- 1857      00000201 
- 1857      FB0E0D00 
- 1857      01010101 
- 1858              	.LASF40:
- 1859 0000 4932434D 		.ascii	"I2CM_I2CMasterGetWriteBufSize\000"
- 1859      5F493243 
- 1859      4D617374 
- 1859      65724765 
- 1859      74577269 
- 1860              	.LASF41:
- 1861 001e 4932434D 		.ascii	"I2CM_I2CMasterReadBuf\000"
- 1861      5F493243 
- 1861      4D617374 
- 1861      65725265 
- 1861      61644275 
- 1862              	.LASF50:
- 1863 0034 496E7075 		.ascii	"InputPinIsr_StartEx\000"
- 1863      7450696E 
- 1863      4973725F 
- 1863      53746172 
- 1863      74457800 
- 1864              	.LASF25:
- 1865 0048 67657454 		.ascii	"getTemperature\000"
- 1865      656D7065 
- 1865      72617475 
- 1865      726500
- 1866              	.LASF12:
- 1867 0057 666C6F61 		.ascii	"float\000"
- 1867      7400
- 1868              	.LASF45:
- 1869 005d 54696D65 		.ascii	"TimerHumidityTemp_ClearInterrupt\000"
- 1869      7248756D 
- 1869      69646974 
- 1869      7954656D 
- 1869      705F436C 
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 39
+ 1776 0119 50       		.byte	0x50
+ 1777 011a 00000000 		.4byte	0
+ 1778 011e 00000000 		.4byte	0
+ 1779              	.LLST8:
+ 1780 0122 02000000 		.4byte	.LVL40
+ 1781 0126 0C000000 		.4byte	.LVL43
+ 1782 012a 0200     		.2byte	0x2
+ 1783 012c 30       		.byte	0x30
+ 1784 012d 9F       		.byte	0x9f
+ 1785 012e 0C000000 		.4byte	.LVL43
+ 1786 0132 0F000000 		.4byte	.LVL44-1
+ 1787 0136 0100     		.2byte	0x1
+ 1788 0138 50       		.byte	0x50
+ 1789 0139 0F000000 		.4byte	.LVL44-1
+ 1790 013d 1A000000 		.4byte	.LVL47
+ 1791 0141 0100     		.2byte	0x1
+ 1792 0143 54       		.byte	0x54
+ 1793 0144 00000000 		.4byte	0
+ 1794 0148 00000000 		.4byte	0
+ 1795              	.LLST9:
+ 1796 014c 02000000 		.4byte	.LVL40
+ 1797 0150 14000000 		.4byte	.LVL45
+ 1798 0154 0200     		.2byte	0x2
+ 1799 0156 30       		.byte	0x30
+ 1800 0157 9F       		.byte	0x9f
+ 1801 0158 14000000 		.4byte	.LVL45
+ 1802 015c 19000000 		.4byte	.LVL46-1
+ 1803 0160 0100     		.2byte	0x1
+ 1804 0162 50       		.byte	0x50
+ 1805 0163 00000000 		.4byte	0
+ 1806 0167 00000000 		.4byte	0
+ 1807              	.LLST10:
+ 1808 016b 06000000 		.4byte	.LVL49
+ 1809 016f 20000000 		.4byte	.LVL55
+ 1810 0173 0600     		.2byte	0x6
+ 1811 0175 9E       		.byte	0x9e
+ 1812 0176 04       		.uleb128 0x4
+ 1813 0177 00000000 		.4byte	0
+ 1814 017b 4A000000 		.4byte	.LVL58
+ 1815 017f 4D000000 		.4byte	.LVL59-1
+ 1816 0183 0100     		.2byte	0x1
+ 1817 0185 50       		.byte	0x50
+ 1818 0186 00000000 		.4byte	0
+ 1819 018a 00000000 		.4byte	0
+ 1820              		.section	.debug_aranges,"",%progbits
+ 1821 0000 5C000000 		.4byte	0x5c
+ 1822 0004 0200     		.2byte	0x2
+ 1823 0006 00000000 		.4byte	.Ldebug_info0
+ 1824 000a 04       		.byte	0x4
+ 1825 000b 00       		.byte	0
+ 1826 000c 0000     		.2byte	0
+ 1827 000e 0000     		.2byte	0
+ 1828 0010 00000000 		.4byte	.LFB40
+ 1829 0014 48000000 		.4byte	.LFE40-.LFB40
+ 1830 0018 00000000 		.4byte	.LFB33
+ 1831 001c 20000000 		.4byte	.LFE33-.LFB33
+ 1832 0020 00000000 		.4byte	.LFB34
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 40
 
 
- 1870              	.LASF23:
- 1871 007e 76616C75 		.ascii	"value\000"
- 1871      6500
- 1872              	.LASF18:
- 1873 0084 68756D69 		.ascii	"humid\000"
- 1873      6400
- 1874              	.LASF42:
- 1875 008a 54696D65 		.ascii	"Timer_ReadCounter\000"
- 1875      725F5265 
- 1875      6164436F 
- 1875      756E7465 
- 1875      7200
- 1876              	.LASF32:
- 1877 009c 64617461 		.ascii	"data\000"
- 1877      00
- 1878              	.LASF20:
- 1879 00a1 73746174 		.ascii	"status\000"
- 1879      757300
- 1880              	.LASF39:
- 1881 00a8 4932434D 		.ascii	"I2CM_I2CMasterStatus\000"
- 1881      5F493243 
- 1881      4D617374 
- 1881      65725374 
- 1881      61747573 
- 1882              	.LASF36:
- 1883 00bd 55415254 		.ascii	"UART_UartPutString\000"
- 1883      5F556172 
- 1883      74507574 
- 1883      53747269 
- 1883      6E6700
- 1884              	.LASF24:
- 1885 00d0 55415254 		.ascii	"UART_printFormat\000"
- 1885      5F707269 
- 1885      6E74466F 
- 1885      726D6174 
- 1885      00
- 1886              	.LASF27:
- 1887 00e1 74656D70 		.ascii	"temperature\000"
- 1887      65726174 
- 1887      75726500 
- 1888              	.LASF31:
- 1889 00ed 636F756E 		.ascii	"counter\000"
- 1889      74657200 
- 1890              	.LASF28:
- 1891 00f5 7072696E 		.ascii	"printRPM\000"
- 1891      7452504D 
- 1891      00
- 1892              	.LASF1:
- 1893 00fe 756E7369 		.ascii	"unsigned char\000"
- 1893      676E6564 
- 1893      20636861 
- 1893      7200
- 1894              	.LASF29:
- 1895 010c 696E7075 		.ascii	"input\000"
- 1895      7400
- 1896              	.LASF21:
- 1897 0112 57726974 		.ascii	"WriteCommandPacket\000"
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 40
+ 1833 0024 46000000 		.4byte	.LFE34-.LFB34
+ 1834 0028 00000000 		.4byte	.LFB35
+ 1835 002c 3A000000 		.4byte	.LFE35-.LFB35
+ 1836 0030 00000000 		.4byte	.LFB36
+ 1837 0034 38000000 		.4byte	.LFE36-.LFB36
+ 1838 0038 00000000 		.4byte	.LFB37
+ 1839 003c 30000000 		.4byte	.LFE37-.LFB37
+ 1840 0040 00000000 		.4byte	.LFB38
+ 1841 0044 1C000000 		.4byte	.LFE38-.LFB38
+ 1842 0048 00000000 		.4byte	.LFB39
+ 1843 004c 0A000000 		.4byte	.LFE39-.LFB39
+ 1844 0050 00000000 		.4byte	.LFB41
+ 1845 0054 74000000 		.4byte	.LFE41-.LFB41
+ 1846 0058 00000000 		.4byte	0
+ 1847 005c 00000000 		.4byte	0
+ 1848              		.section	.debug_ranges,"",%progbits
+ 1849              	.Ldebug_ranges0:
+ 1850 0000 00000000 		.4byte	.LFB40
+ 1851 0004 48000000 		.4byte	.LFE40
+ 1852 0008 00000000 		.4byte	.LFB33
+ 1853 000c 20000000 		.4byte	.LFE33
+ 1854 0010 00000000 		.4byte	.LFB34
+ 1855 0014 46000000 		.4byte	.LFE34
+ 1856 0018 00000000 		.4byte	.LFB35
+ 1857 001c 3A000000 		.4byte	.LFE35
+ 1858 0020 00000000 		.4byte	.LFB36
+ 1859 0024 38000000 		.4byte	.LFE36
+ 1860 0028 00000000 		.4byte	.LFB37
+ 1861 002c 30000000 		.4byte	.LFE37
+ 1862 0030 00000000 		.4byte	.LFB38
+ 1863 0034 1C000000 		.4byte	.LFE38
+ 1864 0038 00000000 		.4byte	.LFB39
+ 1865 003c 0A000000 		.4byte	.LFE39
+ 1866 0040 00000000 		.4byte	.LFB41
+ 1867 0044 74000000 		.4byte	.LFE41
+ 1868 0048 00000000 		.4byte	0
+ 1869 004c 00000000 		.4byte	0
+ 1870              		.section	.debug_line,"",%progbits
+ 1871              	.Ldebug_line0:
+ 1872 0000 1E020000 		.section	.debug_str,"MS",%progbits,1
+ 1872      02003C01 
+ 1872      00000201 
+ 1872      FB0E0D00 
+ 1872      01010101 
+ 1873              	.LASF54:
+ 1874 0000 4144435F 		.ascii	"ADC_SAR_SEQ_IRQ_StartEx\000"
+ 1874      5341525F 
+ 1874      5345515F 
+ 1874      4952515F 
+ 1874      53746172 
+ 1875              	.LASF38:
+ 1876 0018 72657375 		.ascii	"result\000"
+ 1876      6C7400
+ 1877              	.LASF13:
+ 1878 001f 666C6F61 		.ascii	"float32\000"
+ 1878      74333200 
+ 1879              	.LASF24:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 41
 
 
- 1897      65436F6D 
- 1897      6D616E64 
- 1897      5061636B 
- 1897      657400
- 1898              	.LASF5:
- 1899 0125 6C6F6E67 		.ascii	"long unsigned int\000"
- 1899      20756E73 
- 1899      69676E65 
- 1899      6420696E 
- 1899      7400
- 1900              	.LASF17:
- 1901 0137 74656D70 		.ascii	"temp\000"
- 1901      00
- 1902              	.LASF3:
- 1903 013c 73686F72 		.ascii	"short unsigned int\000"
- 1903      7420756E 
- 1903      7369676E 
- 1903      65642069 
- 1903      6E7400
- 1904              	.LASF47:
- 1905 014f 55415254 		.ascii	"UART_Start\000"
- 1905      5F537461 
- 1905      727400
- 1906              	.LASF30:
- 1907 015a 4374725F 		.ascii	"Ctr_Function\000"
- 1907      46756E63 
- 1907      74696F6E 
+ 1880 0027 74656D70 		.ascii	"temp\000"
+ 1880      00
+ 1881              	.LASF2:
+ 1882 002c 73686F72 		.ascii	"short int\000"
+ 1882      7420696E 
+ 1882      7400
+ 1883              	.LASF19:
+ 1884 0036 73697A65 		.ascii	"sizetype\000"
+ 1884      74797065 
+ 1884      00
+ 1885              	.LASF59:
+ 1886 003f 463A5C50 		.ascii	"F:\\Psoc project\\Hadi\\Workspace01\\Design01.cydsn"
+ 1886      736F6320 
+ 1886      70726F6A 
+ 1886      6563745C 
+ 1886      48616469 
+ 1887 006e 00       		.ascii	"\000"
+ 1888              	.LASF22:
+ 1889 006f 4144435F 		.ascii	"ADC_SAR_SEQ_ISR_LOC\000"
+ 1889      5341525F 
+ 1889      5345515F 
+ 1889      4953525F 
+ 1889      4C4F4300 
+ 1890              	.LASF48:
+ 1891 0083 54696D65 		.ascii	"TimerHumidityTemp_ClearInterrupt\000"
+ 1891      7248756D 
+ 1891      69646974 
+ 1891      7954656D 
+ 1891      705F436C 
+ 1892              	.LASF35:
+ 1893 00a4 6D61696E 		.ascii	"main\000"
+ 1893      00
+ 1894              	.LASF31:
+ 1895 00a9 67657454 		.ascii	"getTemperature\000"
+ 1895      656D7065 
+ 1895      72617475 
+ 1895      726500
+ 1896              	.LASF30:
+ 1897 00b8 76616C75 		.ascii	"value\000"
+ 1897      6500
+ 1898              	.LASF57:
+ 1899 00be 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1899      43313120 
+ 1899      352E342E 
+ 1899      31203230 
+ 1899      31363036 
+ 1900 00f1 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m0 -mthumb -g -O"
+ 1900      20726576 
+ 1900      6973696F 
+ 1900      6E203233 
+ 1900      37373135 
+ 1901 0124 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1901      66756E63 
+ 1901      74696F6E 
+ 1901      2D736563 
+ 1901      74696F6E 
+ 1902              	.LASF36:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 42
+
+
+ 1903 014c 75617274 		.ascii	"uartLine\000"
+ 1903      4C696E65 
+ 1903      00
+ 1904              	.LASF12:
+ 1905 0155 696E7431 		.ascii	"int16\000"
+ 1905      3600
+ 1906              	.LASF21:
+ 1907 015b 72616E67 		.ascii	"range_status\000"
+ 1907      655F7374 
+ 1907      61747573 
  1907      00
- 1908              	.LASF49:
- 1909 0167 54696D65 		.ascii	"TimerHumidityTemp_Start\000"
- 1909      7248756D 
- 1909      69646974 
- 1909      7954656D 
- 1909      705F5374 
- 1910              	.LASF38:
- 1911 017f 4932434D 		.ascii	"I2CM_I2CMasterWriteBuf\000"
- 1911      5F493243 
- 1911      4D617374 
- 1911      65725772 
- 1911      69746542 
- 1912              	.LASF13:
- 1913 0196 646F7562 		.ascii	"double\000"
- 1913      6C6500
+ 1908              	.LASF9:
+ 1909 0168 75696E74 		.ascii	"uint8\000"
+ 1909      3800
+ 1910              	.LASF23:
+ 1911 016e 55415254 		.ascii	"UART_printFormat\000"
+ 1911      5F707269 
+ 1911      6E74466F 
+ 1911      726D6174 
+ 1911      00
+ 1912              	.LASF52:
+ 1913 017f 4144435F 		.ascii	"ADC_SAR_SEQ_Start\000"
+ 1913      5341525F 
+ 1913      5345515F 
+ 1913      53746172 
+ 1913      7400
  1914              	.LASF34:
- 1915 019d 6D61696E 		.ascii	"main\000"
- 1915      00
- 1916              	.LASF10:
- 1917 01a2 75696E74 		.ascii	"uint16\000"
- 1917      313600
- 1918              	.LASF44:
- 1919 01a9 496E7075 		.ascii	"InputPin_ClearInterrupt\000"
- 1919      7450696E 
- 1919      5F436C65 
- 1919      6172496E 
- 1919      74657272 
- 1920              	.LASF11:
- 1921 01c1 75696E74 		.ascii	"uint32\000"
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 41
+ 1915 0191 50657269 		.ascii	"Period_function\000"
+ 1915      6F645F66 
+ 1915      756E6374 
+ 1915      696F6E00 
+ 1916              	.LASF14:
+ 1917 01a1 666C6F61 		.ascii	"float\000"
+ 1917      7400
+ 1918              	.LASF6:
+ 1919 01a7 6C6F6E67 		.ascii	"long long int\000"
+ 1919      206C6F6E 
+ 1919      6720696E 
+ 1919      7400
+ 1920              	.LASF49:
+ 1921 01b5 4932434D 		.ascii	"I2CM_Start\000"
+ 1921      5F537461 
+ 1921      727400
+ 1922              	.LASF51:
+ 1923 01c0 54696D65 		.ascii	"Timer_Start\000"
+ 1923      725F5374 
+ 1923      61727400 
+ 1924              	.LASF4:
+ 1925 01cc 6C6F6E67 		.ascii	"long int\000"
+ 1925      20696E74 
+ 1925      00
+ 1926              	.LASF29:
+ 1927 01d5 72656164 		.ascii	"readSensor\000"
+ 1927      53656E73 
+ 1927      6F7200
+ 1928              	.LASF20:
+ 1929 01e0 696E7472 		.ascii	"intr_status\000"
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 43
 
 
- 1921      333200
- 1922              	.LASF54:
- 1923 01c8 463A5C50 		.ascii	"F:\\Psoc project\\Hadi\\Workspace01\\Design01.cydsn"
- 1923      736F6320 
- 1923      70726F6A 
- 1923      6563745C 
- 1923      48616469 
- 1924 01f7 00       		.ascii	"\000"
- 1925              	.LASF48:
- 1926 01f8 54696D65 		.ascii	"Timer_Start\000"
- 1926      725F5374 
- 1926      61727400 
- 1927              	.LASF8:
- 1928 0204 756E7369 		.ascii	"unsigned int\000"
- 1928      676E6564 
- 1928      20696E74 
- 1928      00
- 1929              	.LASF46:
- 1930 0211 4932434D 		.ascii	"I2CM_Start\000"
- 1930      5F537461 
- 1930      727400
- 1931              	.LASF7:
- 1932 021c 6C6F6E67 		.ascii	"long long unsigned int\000"
- 1932      206C6F6E 
- 1932      6720756E 
- 1932      7369676E 
- 1932      65642069 
- 1933              	.LASF55:
- 1934 0233 72756E54 		.ascii	"runTempHumidModule\000"
- 1934      656D7048 
- 1934      756D6964 
- 1934      4D6F6475 
- 1934      6C6500
- 1935              	.LASF52:
- 1936 0246 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
- 1936      43313120 
- 1936      352E342E 
- 1936      31203230 
- 1936      31363036 
- 1937 0279 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m0 -mthumb -g -O"
- 1937      20726576 
- 1937      6973696F 
- 1937      6E203233 
- 1937      37373135 
- 1938 02ac 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
- 1938      66756E63 
- 1938      74696F6E 
- 1938      2D736563 
- 1938      74696F6E 
- 1939              	.LASF16:
- 1940 02d4 73697A65 		.ascii	"sizetype\000"
- 1940      74797065 
- 1940      00
- 1941              	.LASF6:
- 1942 02dd 6C6F6E67 		.ascii	"long long int\000"
- 1942      206C6F6E 
- 1942      6720696E 
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 42
+ 1929      5F737461 
+ 1929      74757300 
+ 1930              	.LASF46:
+ 1931 01ec 4932434D 		.ascii	"I2CM_I2CMasterGetWriteBufSize\000"
+ 1931      5F493243 
+ 1931      4D617374 
+ 1931      65724765 
+ 1931      74577269 
+ 1932              	.LASF32:
+ 1933 020a 67657448 		.ascii	"getHumidity\000"
+ 1933      756D6964 
+ 1933      69747900 
+ 1934              	.LASF18:
+ 1935 0216 6C6F6E67 		.ascii	"long double\000"
+ 1935      20646F75 
+ 1935      626C6500 
+ 1936              	.LASF1:
+ 1937 0222 756E7369 		.ascii	"unsigned char\000"
+ 1937      676E6564 
+ 1937      20636861 
+ 1937      7200
+ 1938              	.LASF41:
+ 1939 0230 73707269 		.ascii	"sprintf\000"
+ 1939      6E746600 
+ 1940              	.LASF0:
+ 1941 0238 7369676E 		.ascii	"signed char\000"
+ 1941      65642063 
+ 1941      68617200 
+ 1942              	.LASF7:
+ 1943 0244 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1943      206C6F6E 
+ 1943      6720756E 
+ 1943      7369676E 
+ 1943      65642069 
+ 1944              	.LASF42:
+ 1945 025b 55415254 		.ascii	"UART_UartPutString\000"
+ 1945      5F556172 
+ 1945      74507574 
+ 1945      53747269 
+ 1945      6E6700
+ 1946              	.LASF60:
+ 1947 026e 72756E54 		.ascii	"runTempHumidModule\000"
+ 1947      656D7048 
+ 1947      756D6964 
+ 1947      4D6F6475 
+ 1947      6C6500
+ 1948              	.LASF8:
+ 1949 0281 756E7369 		.ascii	"unsigned int\000"
+ 1949      676E6564 
+ 1949      20696E74 
+ 1949      00
+ 1950              	.LASF43:
+ 1951 028e 4932434D 		.ascii	"I2CM_I2CMasterClearStatus\000"
+ 1951      5F493243 
+ 1951      4D617374 
+ 1951      6572436C 
+ 1951      65617253 
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 44
 
 
- 1942      7400
- 1943              	.LASF53:
- 1944 02eb 6D61696E 		.ascii	"main.c\000"
- 1944      2E6300
- 1945              	.LASF14:
- 1946 02f2 63686172 		.ascii	"char\000"
- 1946      00
- 1947              	.LASF37:
- 1948 02f7 4932434D 		.ascii	"I2CM_I2CMasterClearStatus\000"
- 1948      5F493243 
- 1948      4D617374 
- 1948      6572436C 
- 1948      65617253 
- 1949              	.LASF2:
- 1950 0311 73686F72 		.ascii	"short int\000"
- 1950      7420696E 
- 1950      7400
- 1951              	.LASF19:
- 1952 031b 62756666 		.ascii	"buffer\000"
- 1952      657200
- 1953              	.LASF9:
- 1954 0322 75696E74 		.ascii	"uint8\000"
- 1954      3800
- 1955              	.LASF22:
- 1956 0328 72656164 		.ascii	"readSensor\000"
- 1956      53656E73 
- 1956      6F7200
- 1957              	.LASF43:
- 1958 0333 54696D65 		.ascii	"Timer_WriteCounter\000"
- 1958      725F5772 
- 1958      69746543 
- 1958      6F756E74 
- 1958      657200
- 1959              	.LASF4:
- 1960 0346 6C6F6E67 		.ascii	"long int\000"
- 1960      20696E74 
- 1960      00
- 1961              	.LASF15:
- 1962 034f 6C6F6E67 		.ascii	"long double\000"
- 1962      20646F75 
- 1962      626C6500 
- 1963              	.LASF0:
- 1964 035b 7369676E 		.ascii	"signed char\000"
- 1964      65642063 
- 1964      68617200 
- 1965              	.LASF33:
- 1966 0367 50657269 		.ascii	"Period_function\000"
- 1966      6F645F66 
- 1966      756E6374 
- 1966      696F6E00 
- 1967              	.LASF35:
- 1968 0377 73707269 		.ascii	"sprintf\000"
- 1968      6E746600 
- 1969              	.LASF51:
- 1970 037f 43794465 		.ascii	"CyDelay\000"
- 1970      6C617900 
- 1971              	.LASF26:
-ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\ccVyFENb.s 			page 43
+ 1952              	.LASF17:
+ 1953 02a8 72656733 		.ascii	"reg32\000"
+ 1953      3200
+ 1954              	.LASF3:
+ 1955 02ae 73686F72 		.ascii	"short unsigned int\000"
+ 1955      7420756E 
+ 1955      7369676E 
+ 1955      65642069 
+ 1955      6E7400
+ 1956              	.LASF27:
+ 1957 02c1 73746174 		.ascii	"status\000"
+ 1957      757300
+ 1958              	.LASF16:
+ 1959 02c8 63686172 		.ascii	"char\000"
+ 1959      00
+ 1960              	.LASF25:
+ 1961 02cd 68756D69 		.ascii	"humid\000"
+ 1961      6400
+ 1962              	.LASF50:
+ 1963 02d3 55415254 		.ascii	"UART_Start\000"
+ 1963      5F537461 
+ 1963      727400
+ 1964              	.LASF37:
+ 1965 02de 64617461 		.ascii	"dataReady\000"
+ 1965      52656164 
+ 1965      7900
+ 1966              	.LASF56:
+ 1967 02e8 4144435F 		.ascii	"ADC_SAR_SEQ_CountsTo_Volts\000"
+ 1967      5341525F 
+ 1967      5345515F 
+ 1967      436F756E 
+ 1967      7473546F 
+ 1968              	.LASF10:
+ 1969 0303 75696E74 		.ascii	"uint16\000"
+ 1969      313600
+ 1970              	.LASF26:
+ 1971 030a 62756666 		.ascii	"buffer\000"
+ 1971      657200
+ 1972              	.LASF40:
+ 1973 0311 4144435F 		.ascii	"ADC_SAR_SEQ_GetResult16\000"
+ 1973      5341525F 
+ 1973      5345515F 
+ 1973      47657452 
+ 1973      6573756C 
+ 1974              	.LASF11:
+ 1975 0329 75696E74 		.ascii	"uint32\000"
+ 1975      333200
+ 1976              	.LASF58:
+ 1977 0330 6D61696E 		.ascii	"main.c\000"
+ 1977      2E6300
+ 1978              	.LASF5:
+ 1979 0337 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1979      20756E73 
+ 1979      69676E65 
+ 1979      6420696E 
+ 1979      7400
+ 1980              	.LASF15:
+ARM GAS  C:\Users\Keyarash\AppData\Local\Temp\cc2rLNzY.s 			page 45
 
 
- 1972 0387 67657448 		.ascii	"getHumidity\000"
- 1972      756D6964 
- 1972      69747900 
- 1973              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran
+ 1981 0349 646F7562 		.ascii	"double\000"
+ 1981      6C6500
+ 1982              	.LASF33:
+ 1983 0350 74656D70 		.ascii	"temperature\000"
+ 1983      65726174 
+ 1983      75726500 
+ 1984              	.LASF47:
+ 1985 035c 4932434D 		.ascii	"I2CM_I2CMasterReadBuf\000"
+ 1985      5F493243 
+ 1985      4D617374 
+ 1985      65725265 
+ 1985      61644275 
+ 1986              	.LASF45:
+ 1987 0372 4932434D 		.ascii	"I2CM_I2CMasterStatus\000"
+ 1987      5F493243 
+ 1987      4D617374 
+ 1987      65725374 
+ 1987      61747573 
+ 1988              	.LASF28:
+ 1989 0387 57726974 		.ascii	"WriteCommandPacket\000"
+ 1989      65436F6D 
+ 1989      6D616E64 
+ 1989      5061636B 
+ 1989      657400
+ 1990              	.LASF44:
+ 1991 039a 4932434D 		.ascii	"I2CM_I2CMasterWriteBuf\000"
+ 1991      5F493243 
+ 1991      4D617374 
+ 1991      65725772 
+ 1991      69746542 
+ 1992              	.LASF39:
+ 1993 03b1 74696D65 		.ascii	"timer_delay\000"
+ 1993      725F6465 
+ 1993      6C617900 
+ 1994              	.LASF55:
+ 1995 03bd 43794465 		.ascii	"CyDelay\000"
+ 1995      6C617900 
+ 1996              	.LASF53:
+ 1997 03c5 4144435F 		.ascii	"ADC_SAR_SEQ_StartConvert\000"
+ 1997      5341525F 
+ 1997      5345515F 
+ 1997      53746172 
+ 1997      74436F6E 
+ 1998              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

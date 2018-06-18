@@ -11,6 +11,7 @@
   <Data key="DataVersionKey" value="2" />
   <Group key="DWRInstGuidMapping">
     <Group key="Pin">
+      <Data key="5be41fea-47f7-4ffa-a0a5-c87cc6bc2936" value="Pin_Vin" />
       <Data key="43ec2fa1-bf22-4b71-9477-b6ca7b97f0b0/23b8206d-1c77-4e61-be4a-b4037d5de5fc" value="UART_tx" />
       <Data key="43ec2fa1-bf22-4b71-9477-b6ca7b97f0b0/78e33e5d-45ea-4b75-88d5-73274e8a7ce4" value="UART_rx" />
       <Data key="97bd13f1-c879-4c52-a35f-fdd57642446e/5382e105-1382-4a2e-b9f4-3bb2feba71e0" value="I2CM_sda" />
@@ -1225,6 +1226,11 @@
     </Group>
   </Group>
   <Group key="Pin2">
+    <Group key="5be41fea-47f7-4ffa-a0a5-c87cc6bc2936">
+      <Group key="0">
+        <Data key="Port Format" value="0,4" />
+      </Group>
+    </Group>
     <Group key="97bd13f1-c879-4c52-a35f-fdd57642446e/5382e105-1382-4a2e-b9f4-3bb2feba71e0">
       <Group key="0">
         <Data key="Port Format" value="3,1" />
@@ -1249,7 +1255,7 @@
     <Data key="CYDEV_CONFIGURATION_MODE" value="COMPRESSED" />
     <Data key="CYDEV_DEBUG_PROTECT" value="OPEN" />
     <Data key="CYDEV_DEBUGGING_DPS" value="SWD" />
-    <Data key="CYDEV_HEAP_SIZE" value="0x80" />
+    <Data key="CYDEV_HEAP_SIZE" value="0x0200" />
     <Data key="CYDEV_STACK_SIZE" value="0x0400" />
     <Data key="CYDEV_TEMPERATURE" value="-40C - 85C" />
     <Data key="CYDEV_USE_BUNDLED_CMSIS" value="True" />

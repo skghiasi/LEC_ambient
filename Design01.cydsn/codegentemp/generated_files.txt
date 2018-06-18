@@ -26,6 +26,11 @@
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_I2C_PVT.h" value="HEADER;;;;;I2CM" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_PVT.h" value="HEADER;;;;;I2CM" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_BOOT.h" value="HEADER;;;;;I2CM" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.c" value="SOURCE_C;CortexM0;;;;Clk_Timer" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.h" value="HEADER;;;;;Clk_Timer" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer.c" value="SOURCE_C;CortexM0;;;;Timer" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer.h" value="HEADER;;;;;Timer" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer_PM.c" value="SOURCE_C;CortexM0;;;;Timer" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART.c" value="SOURCE_C;CortexM0;;;;UART" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART.h" value="HEADER;;;;;UART" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_SPI_UART.h" value="HEADER;;;;;UART" />
@@ -39,17 +44,6 @@
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_SPI_UART_PVT.h" value="HEADER;;;;;UART" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_PVT.h" value="HEADER;;;;;UART" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_BOOT.h" value="HEADER;;;;;UART" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.c" value="SOURCE_C;CortexM0;;;;Clk_Timer" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer.h" value="HEADER;;;;;Clk_Timer" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPin.c" value="SOURCE_C;CortexM0;;;;InputPin" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPin.h" value="HEADER;;;;;InputPin" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPin_aliases.h" value="HEADER;;;;;InputPin" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPin_PM.c" value="SOURCE_C;CortexM0;;;;InputPin" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer.c" value="SOURCE_C;CortexM0;;;;Timer" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer.h" value="HEADER;;;;;Timer" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Timer_PM.c" value="SOURCE_C;CortexM0;;;;Timer" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPinIsr.c" value="SOURCE_C;CortexM0;;;;InputPinIsr" />
-  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\InputPinIsr.h" value="HEADER;;;;;InputPinIsr" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer_1.c" value="SOURCE_C;CortexM0;;;;Clk_Timer_1" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Clk_Timer_1.h" value="HEADER;;;;;Clk_Timer_1" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\TimerHumidityTemp.c" value="SOURCE_C;CortexM0;;;;TimerHumidityTemp" />
@@ -57,6 +51,14 @@
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\TimerHumidityTemp_PM.c" value="SOURCE_C;CortexM0;;;;TimerHumidityTemp" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\HumidityTempIsr.c" value="SOURCE_C;CortexM0;;;;HumidityTempIsr" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\HumidityTempIsr.h" value="HEADER;;;;;HumidityTempIsr" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ.c" value="SOURCE_C;CortexM0;;;;ADC_SAR_SEQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ.h" value="HEADER;;;;;ADC_SAR_SEQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_PM.c" value="SOURCE_C;CortexM0;;;;ADC_SAR_SEQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_INT.c" value="SOURCE_C;CortexM0;;;;ADC_SAR_SEQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Pin_Vin.c" value="SOURCE_C;CortexM0;;;;Pin_Vin" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Pin_Vin.h" value="HEADER;;;;;Pin_Vin" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Pin_Vin_aliases.h" value="HEADER;;;;;Pin_Vin" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Pin_Vin_PM.c" value="SOURCE_C;CortexM0;;;;Pin_Vin" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_SCBCLK.c" value="SOURCE_C;CortexM0;;;;I2CM_SCBCLK" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_SCBCLK.h" value="HEADER;;;;;I2CM_SCBCLK" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\I2CM_sda.c" value="SOURCE_C;CortexM0;;;;I2CM_sda" />
@@ -79,6 +81,10 @@
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_rx.h" value="HEADER;;;;;UART_rx" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_rx_aliases.h" value="HEADER;;;;;UART_rx" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\UART_rx_PM.c" value="SOURCE_C;CortexM0;;;;UART_rx" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_IRQ.c" value="SOURCE_C;CortexM0;;;;ADC_SAR_SEQ_IRQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_IRQ.h" value="HEADER;;;;;ADC_SAR_SEQ_IRQ" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_intClock.c" value="SOURCE_C;CortexM0;;;;ADC_SAR_SEQ_intClock" />
+  <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\ADC_SAR_SEQ_intClock.h" value="HEADER;;;;;ADC_SAR_SEQ_intClock" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\cm0gcc.ld" value="LINKER_SCRIPT;;;b98f980c-3bd1-4fc7-a887-c56a20a46fdd;;cy_boot" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Cm0RealView.scat" value="LINKER_SCRIPT;;;fdb8e1ae-f83a-46cf-9446-1d703716f38a;;cy_boot" />
   <file name="F:\Psoc project\Hadi\Workspace01\Design01.cydsn\codegentemp\Cm0Start.c" value="SOURCE_C;CortexM0;;;;cy_boot" />

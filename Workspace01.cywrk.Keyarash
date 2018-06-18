@@ -51,6 +51,9 @@
 <v>Workspace01\Design01\Source Files\main.c</v>
 <v>Workspace01\Design01\Generated_Source</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4</v>
+<v>Workspace01\Design01\Generated_Source\PSoC4\ADC_SAR_SEQ</v>
+<v>Workspace01\Design01\Generated_Source\PSoC4\ADC_SAR_SEQ_intClock</v>
+<v>Workspace01\Design01\Generated_Source\PSoC4\ADC_SAR_SEQ_IRQ</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\Clk_Timer</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\Clk_Timer_1</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\cy_boot</v>
@@ -62,8 +65,7 @@
 <v>Workspace01\Design01\Generated_Source\PSoC4\I2CM_SCBCLK</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\I2CM_scl</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\I2CM_sda</v>
-<v>Workspace01\Design01\Generated_Source\PSoC4\InputPin</v>
-<v>Workspace01\Design01\Generated_Source\PSoC4\InputPinIsr</v>
+<v>Workspace01\Design01\Generated_Source\PSoC4\Pin_Vin</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\Timer</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\TimerHumidityTemp</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\UART</v>
@@ -80,8 +82,6 @@
 <v>Workspace01\Design01\Generated_Source\PSoC4\cydisabledsheets.h</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\cyfitter.h</v>
 <v>Workspace01\Design01\Generated_Source\PSoC4\cyfitter_cfg.c</v>
-<v>Workspace01\Design01\Generated_Source\PSoC4\cyfitter_cfg.h</v>
-<v>Workspace01\Design01\Generated_Source\PSoC4\cyfittergnu.inc</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 <CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="">
@@ -106,6 +106,11 @@
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_INT.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_intClock.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_IRQ.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Clk_Timer.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Clk_Timer_1.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Cm0Start.lst</v>
@@ -132,10 +137,9 @@
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_scl_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_sda.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_sda_PM.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPin.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPin_PM.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPinIsr.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\main.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Pin_Vin.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Pin_Vin_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Timer.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Timer_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\TimerHumidityTemp.lst</v>
@@ -166,6 +170,11 @@
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_INT.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_intClock.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_IRQ.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\ADC_SAR_SEQ_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Clk_Timer.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Clk_Timer_1.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Cm0Start.lst</v>
@@ -192,10 +201,9 @@
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_scl_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_sda.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\I2CM_sda_PM.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPin.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPin_PM.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\InputPinIsr.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\main.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Pin_Vin.lst</v>
+<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Pin_Vin_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Timer.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\Timer_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\TimerHumidityTemp.lst</v>
@@ -204,10 +212,6 @@
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_BOOT.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_PM.lst</v>
 <v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_rx.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_rx_PM.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_SCBCLK.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_SPI_UART.lst</v>
-<v>Workspace01\Design01\CortexM0\ARM_GCC_541\Debug\Listing Files\UART_SPI_UART_INT.lst</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 </TreeStates>
@@ -224,10 +228,10 @@
 <v>Workspace01\Design01\System Reference Guides</v>
 <v>Workspace01\Design01\System Reference Guides\cy_boot_v5_70</v>
 <v>Workspace01\Design01\System Reference Guides\cy_lfclk_v1_20</v>
+<v>Workspace01\Design01\ADC_SAR_SEQ_P4_v2_50.pdf</v>
 <v>Workspace01\Design01\cy_clock_v2_20</v>
 <v>Workspace01\Design01\cy_clock_v2_20\cy_clock_v2_20.pdf</v>
-<v>Workspace01\Design01\cy_isr_v1_70</v>
-<v>Workspace01\Design01\cy_isr_v1_70\cy_isr_v1_70.pdf</v>
+<v>Workspace01\Design01\cy_isr_v1_70.pdf</v>
 <v>Workspace01\Design01\cy_pins_v2_20.pdf</v>
 <v>Workspace01\Design01\SCB_P4_v4_0</v>
 <v>Workspace01\Design01\SCB_P4_v4_0\SCB_P4_v4_0.pdf</v>
@@ -242,10 +246,10 @@
 <v>Workspace01\Design01\System Reference Guides</v>
 <v>Workspace01\Design01\System Reference Guides\cy_boot_v5_70</v>
 <v>Workspace01\Design01\System Reference Guides\cy_lfclk_v1_20</v>
+<v>Workspace01\Design01\ADC_SAR_SEQ_P4_v2_50.pdf</v>
 <v>Workspace01\Design01\cy_clock_v2_20</v>
 <v>Workspace01\Design01\cy_clock_v2_20\cy_clock_v2_20.pdf</v>
-<v>Workspace01\Design01\cy_isr_v1_70</v>
-<v>Workspace01\Design01\cy_isr_v1_70\cy_isr_v1_70.pdf</v>
+<v>Workspace01\Design01\cy_isr_v1_70.pdf</v>
 <v>Workspace01\Design01\cy_pins_v2_20.pdf</v>
 <v>Workspace01\Design01\SCB_P4_v4_0</v>
 <v>Workspace01\Design01\SCB_P4_v4_0\SCB_P4_v4_0.pdf</v>
